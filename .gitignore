@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+coverage/
+
+# Generated TypeScript output from accidental src emits
+frontend/src/**/*.d.ts
+frontend/src/**/*.d.ts.map
+frontend/src/**/*.js
+frontend/src/**/*.js.map
+
+# Local generated config output
+frontend/vite.config.js
+frontend/vite.config.js.map
+frontend/vite.config.d.ts
+frontend/vite.config.d.ts.map
+
+# Local archives and backups
+*.zip
+ignore/
+frontend/frontend(백업)/
+frontend/frontend(백업)/
+
+# OS files
+.DS_Store
+**/.DS_Store
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
