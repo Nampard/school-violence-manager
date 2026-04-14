@@ -1,26 +1,64 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@config "../tailwind.config.js";
 
 @layer base {
   :root {
-    --font-pretendard: 'Pretendard Variable', 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, Roboto, sans-serif;
+    --font-pretendard: 'Pretendard Variable', 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    --surface: #f8f9ff;
+    --surface-low: #eff4ff;
+    --surface-mid: #e5eeff;
+    --ink: #0b1c30;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  p,
+  ul {
+    margin: 0;
+  }
+
+  html {
+    min-width: 320px;
+    background: var(--surface);
   }
 
   body {
+    margin: 0;
+    min-width: 320px;
+    min-height: 100vh;
+    overflow-y: scroll;
+    background: var(--surface);
+    color: var(--ink);
     font-family: var(--font-pretendard);
-    color: #1e293b;
-    background: #f8fafc;
+    letter-spacing: 0;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    /* 스크롤바 생성 시 화면이 미세하게 흔들리는 현상 방지 */
-    overflow-y: scroll;
+  }
+
+  button,
+  textarea {
+    font: inherit;
+  }
+
+  textarea::selection,
+  p::selection,
+  h1::selection,
+  h2::selection,
+  h3::selection,
+  h4::selection,
+  span::selection {
+    background: #dee0ff;
+    color: #00105a;
   }
 }
 
 @layer utilities {
-
-  /* 모바일 환경을 위한 스크롤바 숨김 처리 */
   .hide-scrollbar::-webkit-scrollbar {
     display: none;
   }
@@ -29,26 +67,145 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
-}
 
-/* 커스텀 애니메이션: 콘텐츠가 부드럽게 떠오르는 효과 */
-@keyframes fadeInUp {
-  0% {
-    opacity: 0;
-    transform: translateY(12px);
+  .ai-draft-surface {
+    background: linear-gradient(135deg, #eff4ff 0%, #ccead7 100%);
   }
 
-  100% {
+  .material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+    line-height: 1;
+    vertical-align: middle;
+  }
+}
+
+@layer components {
+  .stitch-sidebar {
+    display: none;
+  }
+
+  .stitch-topbar {
+    margin-left: 0;
+  }
+
+  .stitch-shell-main {
+    padding: 44px 24px;
+  }
+
+  .stitch-mobile-tabs {
+    display: flex;
+  }
+
+  .case-intake-grid,
+  .document-workspace,
+  .draft-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .document-header {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .case-intake-grid {
+    gap: 64px;
+  }
+
+  .document-workspace {
+    gap: 44px;
+    align-items: start;
+  }
+
+  .draft-grid {
+    gap: 32px;
+  }
+
+  .draft-wide {
+    grid-column: 1 / -1;
+  }
+
+  .floating-tip {
+    margin-top: 32px;
+  }
+
+  @media (min-width: 980px) {
+    .stitch-sidebar {
+      display: flex;
+    }
+
+    .stitch-topbar {
+      margin-left: 256px;
+    }
+
+    .stitch-shell-main {
+      margin-left: 256px;
+      padding: 40px;
+    }
+
+    .stitch-mobile-tabs {
+      display: none;
+    }
+  }
+
+  @media (min-width: 1180px) {
+    .document-header {
+      flex-direction: row;
+      align-items: flex-end;
+      justify-content: space-between;
+    }
+
+    .document-workspace {
+      grid-template-columns: minmax(320px, 370px) minmax(0, 1fr);
+    }
+
+    .source-sticky {
+      position: sticky;
+      top: 112px;
+    }
+
+    .draft-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .floating-tip {
+      position: fixed;
+      right: 40px;
+      bottom: 32px;
+      z-index: 40;
+      max-width: 384px;
+      margin-top: 0;
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .stitch-shell-main {
+      padding-right: 56px;
+      padding-left: 56px;
+    }
+
+    .case-intake-grid {
+      grid-template-columns: minmax(0, 1fr) minmax(560px, 680px);
+    }
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
-.animate-fade-in-up {
-  animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+.animate-fade-in {
+  animation: fade-in 0.22s ease-out both;
 }
 
-/* 아름다운 스크롤바 커스텀 */
 ::-webkit-scrollbar {
   width: 12px;
   height: 12px;
@@ -59,12 +216,7 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: #cbd5e1;
-  border-radius: 9999px;
-  border: 3px solid #f8fafc;
-  /* 테두리를 배경색과 맞춰 여백이 있는 것처럼 보이게 함 */
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background-color: #94a3b8;
+  background-color: #c5c5d4;
+  border: 3px solid #f8f9ff;
+  border-radius: 8px;
 }

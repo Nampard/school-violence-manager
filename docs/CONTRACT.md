@@ -6,8 +6,8 @@
 > Planner: Codex  
 > Backend: Codex, FastAPI  
 > Frontend: Codex, React, Vite  
-> 프론트 계약: `docs/FRONTEND_CONTRACT.md`  
-> 디자인 참고: `docs/design/DESIGN.md`, `docs/design/design prompt.html`  
+> 프론트 기준: `stitch(new)/10/code.html`, `stitch(new)/ai/code.html`
+> 디자인 참고: `stitch(new)/equilibrium_admin/DESIGN.md`, `stitch(new)/10/screen.png`, `stitch(new)/ai/screen.png`
 > 법령/서식 참고: `reference/`의 2026 충청북도교육청 PDF/HWPX, 국가법령정보센터의 학교폭력예방 및 대책에 관한 법률
 
 ---
@@ -18,7 +18,7 @@
 
 - Codex는 기획, API 계약, 백엔드, 프론트엔드, 데이터 모델, 보안 정책을 책임진다.
 - Gemini/Sonnet 등 외부 모델 산출물은 참고 시안으로만 사용한다. 실제 적용 여부와 계약 준수 검증은 Codex가 맡는다.
-- 디자인은 `docs/design/DESIGN.md`, `docs/design/design prompt.html`, `docs/FRONTEND_CONTRACT.md`를 기준으로 한다.
+- 프론트는 기존 디자인 문서가 아니라 `stitch(new)` 내보내기 화면을 기준으로 한다.
 - 학교폭력 관련 판단, 조치, 문서 문구는 최종적으로 담당 교사가 검토한다. AI는 초안과 정리만 수행한다.
 - 작업 원칙은 `agent.md`를 우선한다. 큰 범위 변경은 사용자에게 먼저 묻고, 구현은 기능별 모듈로 나눈다.
 
@@ -75,9 +75,9 @@ Backend Codex의 책임:
 
 Frontend Codex의 책임:
 
-- `docs/FRONTEND_CONTRACT.md`를 프론트 구현 기준으로 유지한다.
-- `docs/design/DESIGN.md`의 "Digital Jurist" 방향성을 반영한다.
-- `docs/design/design prompt.html`의 화면 구성을 참고하되, 실제 구현은 제품 흐름과 접근성을 우선한다.
+- `stitch(new)/10/code.html`과 `stitch(new)/ai/code.html`을 React 컴포넌트 구조로 해체해 구현한다.
+- `stitch(new)/equilibrium_admin/DESIGN.md`의 "Stoic Archivist" 방향성을 반영한다.
+- `stitch(new)/10/screen.png`와 `stitch(new)/ai/screen.png`의 화면 골격을 우선한다.
 - Tailwind CSS와 Material Symbols를 사용한다.
 - API 경로, 응답 envelope, enum, 권한 정책을 임의로 바꾸지 않는다.
 - 백엔드가 없을 때는 이 문서의 예시 응답을 mock으로 사용하되 mock shape를 실제 계약과 동일하게 유지한다.
@@ -91,31 +91,43 @@ Frontend Codex의 책임:
 
 | 자료 | 용도 |
 |---|---|
-| `docs/FRONTEND_CONTRACT.md` | 프론트 구현 범위, 폴더 구조, 화면별 책임, 품질 기준 |
-| `docs/design/DESIGN.md` | 시각 방향성, 색상, 타이포그래피, 여백, 표면 계층, 버튼 규칙 |
-| `docs/design/design prompt.html` | 화면 구성 가이드, Tailwind CSS 사용, Material Symbols 사용 |
+| `stitch(new)/equilibrium_admin/DESIGN.md` | Stoic Archivist 시각 방향성, 색상, 타이포그래피, 여백, 표면 계층, 버튼 규칙 |
+| `stitch(new)/10/code.html`, `stitch(new)/ai/code.html` | Tailwind/Material Symbols 기반 화면 골격 |
+| `stitch(new)/10/screen.png`, `stitch(new)/ai/screen.png` | 최종 화면 밀도, 비율, 작업공간 배치 참고 |
 
 ### 3.1 화면 매핑
 
 | 라우트 | 화면 | 디자인 참조 |
 |---|---|---|
-| `/dashboard` | 사안 관리 대시보드 | SCREEN_4, Dashboard Overview |
-| `/cases/new` | 사안 접수 및 서식 작성 | SCREEN_6, Case Intake & Form Generation |
-| `/cases/:caseId` | 사안 상세 워크스페이스 | DESIGN.md의 Case Feed, Structured Forms |
-| `/cases/:caseId/investigations` | 조사 기록 관리 | Case Feed, Copy-to-Clipboard Hub |
-| `/cases/:caseId/documents` | 회의록 및 결과 보고서 생성 | SCREEN_2, Minutes & Final Determination |
-| `/templates` | 서식 및 템플릿 라이브러리 | SCREEN_5, Form & Template Library |
+| `/dashboard` | 사안 관리 대시보드 | 추후 별도 Stitch 시안 확정 |
+| `/cases/new` | 사안 접수 및 서식10 초안 작성 | `stitch(new)/10/screen.png` |
+| `/cases/:caseId` | 사안 상세 워크스페이스 | `stitch(new)/ai/screen.png`의 dossier/workspace 구조 |
+| `/cases/:caseId/investigations` | 조사 기록 관리 | `stitch(new)/ai/screen.png`의 좌측 source/우측 draft 구조 확장 |
+| `/cases/:caseId/documents` | 서식12 기반 후속 드래프트 생성 | `stitch(new)/ai/screen.png` |
+| `/templates` | 서식 및 템플릿 라이브러리 | 추후 별도 Stitch 시안 확정 |
 
 ### 3.2 디자인 구현 규칙
 
-- 큰 제목과 주요 숫자는 Manrope를 사용한다.
-- 본문, 진술, 폼, 메타데이터는 Inter를 사용한다.
+- 큰 제목, 본문, 진술, 폼, 메타데이터는 Pretendard 중심으로 사용하고 Inter는 보조로 둔다.
 - 1px 구분선으로 화면을 쪼개지 않는다. 표면 색상과 여백으로 구획한다.
-- 색상은 `DESIGN.md`의 표면 계층을 따르되, 전체 화면이 한 가지 파란색 계열로만 보이지 않게 상태 색과 중립 색을 균형 있게 사용한다.
+- 색상은 `stitch(new)/equilibrium_admin/DESIGN.md`의 표면 계층을 따르되, 전체 화면이 한 가지 파란색 계열로만 보이지 않게 상태 색과 중립 색을 균형 있게 사용한다.
 - 버튼 반경은 8px 이하로 유지한다.
 - 긴 학생 이름, 사안 제목, 행정 문구가 모바일에서도 부모 영역을 넘치지 않게 한다.
 - 주요 복사 액션은 눈에 잘 띄게 제공하되, 복사 후 성공 상태를 표시한다.
-- 문서 생성 화면은 전체 서식 미리보기보다 항목별 복사 카드가 우선이다. 각 카드에는 출처 서식, 대상 입력칸, 글자 수, 복사 버튼, 교사 검토 필요 표시를 둔다.
+- 사안접수 화면은 스티치의 서식10 문서 미리보기 패널을 우선한다.
+- 문서 생성 화면은 좌측 `<서식12>` 원천 입력 dossier와 우측 `<서식18/19/20/21/22>` 드래프트 보드를 우선한다.
+
+### 3.3 `stitch(new)` 디자인 시스템 반영 항목
+
+`stitch(new)/equilibrium_admin/DESIGN.md`는 프론트 구현의 메인 디자인 기준이다. 구현 시 아래 항목을 우선 반영한다.
+
+- 디자인 방향은 `The Stoic Archivist`로 고정한다. 복잡한 대시보드보다 정돈된 행정 dossier와 문서 작업실의 인상을 우선한다.
+- 화면 구획은 선보다 표면 계층으로 나눈다. 기본 배경은 `#f8f9ff`, 주요 사이드/작업 영역은 `#eff4ff`, 활성 문서와 복사 블록은 `#ffffff`, 상호작용 표면은 `#dce9ff`를 기준으로 한다.
+- 핵심 색은 Indigo `#2d409f`, Slate 계열 텍스트, Soft Sage 상태색을 함께 사용한다. 긴장도가 높은 문서 작업 UI가 차갑거나 단색으로 보이지 않게 한다.
+- AI 생성 초안 영역은 `surface-container-low`에서 Soft Sage로 이어지는 은은한 그라데이션을 사용하고, 담당 교사 검토가 필요하다는 의미가 드러나게 한다.
+- Copy Block 카드는 흰 표면, 8px 이하 반경, 짧은 라벨, 충분한 세로 여백, 복사 버튼, 출처 서식/대상 필드/글자 수 제한 메타데이터를 포함한다.
+- 입력 영역은 부드러운 채움 배경을 사용하고, 과한 테두리나 중첩 카드 구조를 피한다.
+- `DESIGN.md`에는 한국어 본문 자간을 음수로 제안하는 부분이 있으나, 본 프로젝트의 프론트 구현 규칙상 `letter-spacing: 0`을 유지한다.
 
 ---
 
@@ -932,6 +944,6 @@ backend/
 2. `schemas/`부터 작성하고 OpenAPI가 생성되는지 확인한다.
 3. 권한, 상태 전이, envelope, error handler를 CRUD보다 먼저 구현한다.
 4. 테스트는 school scope와 RBAC를 최우선으로 둔다.
-5. `docs/FRONTEND_CONTRACT.md`를 기준으로 프론트를 직접 유지한다.
+5. 프론트는 `stitch(new)` 내보내기 기준을 직접 React 구조로 유지한다.
 6. `agent.md`의 작업 원칙을 따른다. 특히 큰 범위 변경은 사용자에게 먼저 확인하고, 서식 생성 기능은 모듈별로 나눈다.
 7. 외부 모델 산출물은 참고 자료로만 보고, 적용 전 빌드와 계약 준수 여부를 검증한다.

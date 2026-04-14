@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+
+<html class="light" lang="ko"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Archive-01: Document Management</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "error": "#ba1a1a",
+                    "secondary": "#515f74",
+                    "on-secondary": "#ffffff",
+                    "inverse-surface": "#213145",
+                    "surface-variant": "#d3e4fe",
+                    "primary-fixed-dim": "#bac3ff",
+                    "surface-container-highest": "#d3e4fe",
+                    "inverse-primary": "#bac3ff",
+                    "on-secondary-container": "#57657a",
+                    "surface-container-lowest": "#ffffff",
+                    "surface": "#f8f9ff",
+                    "on-tertiary": "#ffffff",
+                    "surface-container-low": "#eff4ff",
+                    "surface-container": "#e5eeff",
+                    "on-surface": "#0b1c30",
+                    "on-error": "#ffffff",
+                    "surface-container-high": "#dce9ff",
+                    "primary": "#2d409f",
+                    "on-background": "#0b1c30",
+                    "on-tertiary-container": "#c6e4d2",
+                    "surface-tint": "#4456b5",
+                    "on-primary-container": "#d7dbff",
+                    "tertiary-fixed-dim": "#b0cdbc",
+                    "secondary-fixed": "#d5e3fc",
+                    "error-container": "#ffdad6",
+                    "on-tertiary-fixed": "#062015",
+                    "primary-fixed": "#dee0ff",
+                    "inverse-on-surface": "#eaf1ff",
+                    "tertiary-fixed": "#ccead7",
+                    "on-primary": "#ffffff",
+                    "secondary-container": "#d5e3fc",
+                    "tertiary": "#354f41",
+                    "primary-container": "#4759b8",
+                    "secondary-fixed-dim": "#b9c7df",
+                    "outline-variant": "#c5c5d4",
+                    "outline": "#757683",
+                    "on-primary-fixed-variant": "#2a3d9c",
+                    "on-surface-variant": "#454652",
+                    "on-tertiary-fixed-variant": "#324c3f",
+                    "background": "#f8f9ff",
+                    "on-primary-fixed": "#00105a",
+                    "surface-dim": "#cbdbf5",
+                    "on-error-container": "#93000a",
+                    "surface-bright": "#f8f9ff",
+                    "on-secondary-fixed": "#0d1c2e",
+                    "tertiary-container": "#4c6758",
+                    "on-secondary-fixed-variant": "#3a485b"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "fontFamily": {
+                    "headline": ["Inter", "sans-serif"],
+                    "body": ["Inter", "sans-serif"],
+                    "label": ["Inter", "sans-serif"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; letter-spacing: -0.02em; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .text-editorial { line-height: 1.7; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface min-h-screen">
+<!-- SideNavBar Shell -->
+<aside class="flex flex-col fixed left-0 top-0 h-full h-screen w-64 border-r-0 bg-slate-50 dark:bg-slate-900 z-50">
+<div class="p-8">
+<h1 class="text-xl font-bold tracking-tighter text-indigo-800 dark:text-indigo-300">Stoic Archivist</h1>
+<p class="text-xs text-slate-500 mt-1 uppercase tracking-widest">Admin Office</p>
+</div>
+<nav class="flex-1 px-4 space-y-2">
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-slate-800 transition-colors duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="assignment_add">assignment_add</span>
+<span class="font-sans antialiased tracking-tight">Case Intake</span>
+</a>
+<!-- ACTIVE TAB: Document Management -->
+<a class="flex items-center gap-3 px-4 py-3 text-indigo-700 dark:text-indigo-400 font-semibold border-r-4 border-indigo-700 bg-indigo-50 dark:bg-slate-800 transition-colors duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="folder_open">folder_open</span>
+<span class="font-sans antialiased tracking-tight">Document Management</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-slate-800 transition-colors duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+<span class="font-sans antialiased tracking-tight">History</span>
+</a>
+</nav>
+<div class="p-6 mt-auto">
+<div class="flex items-center gap-3 p-3 bg-indigo-50/50 dark:bg-slate-800/50 rounded-xl">
+<img alt="School Administrator Profile" class="w-10 h-10 rounded-full object-cover" data-alt="Professional portrait of a school administrator in a clean office setting, soft daylight, professional and calm expression" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDH7mBuvy8uTyM4z6ZKfKkStVVubAcmkFD7aFTA3Pf9bj1wXLkQh7SkL5TrR7ANdx0MHd8wLNBAeh7MfK2nazEe8iRoaYdXsE2LtJY0lxYkYN8_Bpwl2_XOn82qgMPuv67qIlTiN1sbK1ftyorCTzchudWGGJ6O-N_GSRdJCE31HHkp0ygSQ_40p4EfGDhNmdajectTfiC1XA2WxqW5jB5MT9WQMK7EAL01tjIWh8Fgd_CAcZ0ymyC1hqg5nRm7EW3vqDQfxQKzyQU"/>
+<div class="overflow-hidden">
+<p class="text-sm font-bold text-slate-800 dark:text-slate-200 truncate">Administrator</p>
+<p class="text-xs text-slate-500 truncate">Archivist ID: 9920</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- TopNavBar Shell -->
+<header class="flex justify-between items-center w-full h-16 px-8 ml-64 max-w-[calc(100%-16rem)] docked full-width top-0 sticky z-40 bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl border-b border-slate-100 dark:border-slate-800 shadow-sm dark:shadow-none">
+<div class="flex items-center gap-8">
+<span class="text-lg font-black text-indigo-900 dark:text-indigo-100">Archive-01: Case Context</span>
+<nav class="hidden md:flex gap-6">
+<span class="text-sm font-medium tracking-normal text-slate-600 dark:text-slate-300">Case ID: 2024-082</span>
+<span class="text-sm font-medium tracking-normal text-slate-600 dark:text-slate-300">Student: Kim Min-jun</span>
+<span class="text-sm font-medium tracking-normal text-slate-600 dark:text-slate-300">Date: 2024.05.12</span>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-slate-500 hover:text-indigo-600 transition-all">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="p-2 text-slate-500 hover:text-indigo-600 transition-all">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+</div>
+</header>
+<!-- Main Workspace Content -->
+<main class="ml-64 p-8">
+<div class="max-w-7xl mx-auto space-y-8">
+<!-- Page Header Section -->
+<div class="flex justify-between items-end mb-8">
+<div>
+<h2 class="text-3xl font-bold text-on-surface tracking-tight mb-2">Draft Generation Workspace</h2>
+<p class="text-secondary text-sm">Convert primary case investigations into multiple specialized school report formats.</p>
+</div>
+<div class="flex gap-3">
+<button class="px-6 py-2 bg-surface-container text-primary font-semibold rounded-md hover:bg-surface-container-high transition-colors text-sm">
+                        Refresh All Drafts
+                    </button>
+<button class="px-6 py-2 bg-primary text-on-primary font-semibold rounded-md hover:opacity-90 transition-opacity text-sm">
+                        Submit Documentation
+                    </button>
+</div>
+</div>
+<div class="grid grid-cols-12 gap-8 items-start">
+<!-- LEFT: Main Source Input (Dossier Look) -->
+<section class="col-span-12 lg:col-span-4 sticky top-24">
+<div class="bg-surface-container-lowest rounded-xl p-8 shadow-sm ring-1 ring-slate-100">
+<div class="flex items-center gap-3 mb-6">
+<div class="w-1.5 h-6 bg-primary rounded-full"></div>
+<h3 class="text-lg font-bold text-on-surface">Main Source Input</h3>
+</div>
+<div class="space-y-6">
+<div>
+<label class="block text-xs font-bold text-secondary uppercase tracking-widest mb-3">Form Identity</label>
+<div class="bg-surface-container-low p-3 rounded-md border-l-4 border-indigo-700">
+<p class="text-sm font-semibold text-primary">서식 12: 사안조사 보고서</p>
+</div>
+</div>
+<div>
+<label class="block text-xs font-bold text-secondary uppercase tracking-widest mb-3">Primary Investigation Data</label>
+<textarea class="w-full h-[500px] bg-surface-container-low border-none rounded-lg p-4 text-sm text-editorial text-on-surface focus:ring-2 focus:ring-primary/20 resize-none" placeholder="Enter investigation details here...">[사건 개요]
+2024년 5월 12일 점심시간, 학교 뒤편 운동장에서 가해학생 A와 피해학생 B 사이에 언어적 충돌이 발생함. 
+상담 결과 가해학생은 장난이었다고 주장하나, 피해학생은 지속적인 언어폭력으로 인한 심리적 불안을 호소하고 있음. 
+목격자 C의 진술에 따르면 피의학생의 발언이 다소 강압적이었음을 확인.
+
+[조사 상세]
+- 발생 일시: 2024.05.12 12:45
+- 발생 장소: 운동장 스탠드 뒤편
+- 관련 학생: 2학년 3반 김민준, 2학년 1반 이서윤
+- 조치 사항: 즉시 분리 조치 및 상담 실시</textarea>
+</div>
+<div class="pt-4 flex items-center justify-between">
+<span class="text-[10px] text-secondary">Last updated: 14:22:05</span>
+<button class="text-primary text-xs font-bold flex items-center gap-1 hover:underline">
+<span class="material-symbols-outlined text-sm" data-icon="sync">sync</span>
+                                    Sync Source
+                                </button>
+</div>
+</div>
+</div>
+</section>
+<!-- RIGHT: Dependent Output Cards (Editorial Grid) -->
+<section class="col-span-12 lg:col-span-8 space-y-6">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- Card 1: Format 18 -->
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-sm flex flex-col group transition-all hover:shadow-md">
+<div class="flex justify-between items-start mb-6">
+<div>
+<span class="px-2 py-0.5 bg-tertiary-container text-white text-[10px] font-bold rounded uppercase tracking-tighter">Draft 18</span>
+<h4 class="mt-2 font-bold text-on-surface">심의내용 (Official)</h4>
+</div>
+<span class="px-2 py-1 bg-tertiary-fixed text-on-tertiary-fixed text-[10px] font-bold rounded-full">Review Pending</span>
+</div>
+<div class="flex-1 bg-gradient-to-br from-surface-container-low to-tertiary-fixed-dim/10 p-4 rounded-lg mb-4 border border-indigo-50/50">
+<p class="text-sm text-editorial text-on-surface-variant">2024년 5월 12일 발생한 사안에 대하여 조사한 결과, 관련 학생들 간의 언어적 분쟁이 확인됨. 가해 학생의 발언 수위와 지속성을 고려할 때 학교폭력 예방 및 대책에 관한 법률 제17조에 따른 조치가 필요함...</p>
+</div>
+<div class="flex items-center justify-between mt-auto">
+<div class="flex gap-4">
+<div>
+<p class="text-[10px] text-secondary font-bold uppercase">Field</p>
+<p class="text-xs font-medium">심의 핵심 요약</p>
+</div>
+<div>
+<p class="text-[10px] text-secondary font-bold uppercase">Limit</p>
+<p class="text-xs font-medium">124 / 500</p>
+</div>
+</div>
+<button class="p-2 rounded-md bg-surface-container hover:bg-primary hover:text-on-primary transition-all group-hover:scale-105 active:scale-95">
+<span class="material-symbols-outlined text-sm" data-icon="content_copy">content_copy</span>
+</button>
+</div>
+</div>
+<!-- Card 2: Format 19 -->
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-sm flex flex-col group transition-all hover:shadow-md">
+<div class="flex justify-between items-start mb-6">
+<div>
+<span class="px-2 py-0.5 bg-secondary-container text-on-secondary-container text-[10px] font-bold rounded uppercase tracking-tighter">Draft 19</span>
+<h4 class="mt-2 font-bold text-on-surface">종결용 심의내용</h4>
+</div>
+<span class="px-2 py-1 bg-surface-container-high text-on-surface-variant text-[10px] font-bold rounded-full">Drafting</span>
+</div>
+<div class="flex-1 bg-gradient-to-br from-surface-container-low to-tertiary-fixed-dim/10 p-4 rounded-lg mb-4 border border-indigo-50/50">
+<p class="text-sm text-editorial text-on-surface-variant italic text-secondary/60">Generating summary for case closure... This content focuses on the final resolution steps and mutual agreement status between parties.</p>
+</div>
+<div class="flex items-center justify-between mt-auto">
+<div class="flex gap-4">
+<div>
+<p class="text-[10px] text-secondary font-bold uppercase">Field</p>
+<p class="text-xs font-medium">종결 확인서</p>
+</div>
+<div>
+<p class="text-[10px] text-secondary font-bold uppercase">Limit</p>
+<p class="text-xs font-medium">0 / 500</p>
+</div>
+</div>
+<button class="p-2 rounded-md bg-surface-container hover:bg-primary hover:text-on-primary transition-all">
+<span class="material-symbols-outlined text-sm" data-icon="content_copy">content_copy</span>
+</button>
+</div>
+</div>
+<!-- Card 3: Format 20 -->
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-sm flex flex-col group transition-all hover:shadow-md">
+<div class="flex justify-between items-start mb-6">
+<div>
+<span class="px-2 py-0.5 bg-indigo-100 text-indigo-700 text-[10px] font-bold rounded uppercase tracking-tighter">Draft 20</span>
+<h4 class="mt-2 font-bold text-on-surface">보호자용 중립 문체</h4>
+</div>
+<span class="px-2 py-1 bg-tertiary-fixed text-on-tertiary-fixed text-[10px] font-bold rounded-full">Ready</span>
+</div>
+<div class="flex-1 bg-gradient-to-br from-surface-container-low to-tertiary-fixed-dim/10 p-4 rounded-lg mb-4 border border-indigo-50/50">
+<p class="text-sm text-editorial text-on-surface-variant">해당 사안은 학교 내에서 학생들 간 발생한 갈등 상황으로, 학교는 중립적인 입장에서 양측 학생의 진술을 청취하였습니다. 보호자분께서는 학생의 심리적 안정을 우선해 주시길 부탁드립니다.</p>
+</div>
+<div class="flex items-center justify-between mt-auto">
+<div class="flex gap-4">
+<div>
+<p class="text-[10px] text-secondary font-bold uppercase">Field</p>
+<p class="text-xs font-medium">통지서 내용</p>
+</div>
+<div>
+<p class="text-[10px] text-secondary font-bold uppercase">Limit</p>
+<p class="text-xs font-medium">118 / 400</p>
+</div>
+</div>
+<button class="p-2 rounded-md bg-surface-container hover:bg-primary hover:text-on-primary transition-all">
+<span class="material-symbols-outlined text-sm" data-icon="content_copy">content_copy</span>
+</button>
+</div>
+</div>
+<!-- Card 4: Format 21 -->
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-sm flex flex-col group transition-all hover:shadow-md">
+<div class="flex justify-between items-start mb-6">
+<div>
+<span class="px-2 py-0.5 bg-indigo-100 text-indigo-700 text-[10px] font-bold rounded uppercase tracking-tighter">Draft 21</span>
+<h4 class="mt-2 font-bold text-on-surface">보호자용 (Simplified)</h4>
+</div>
+<span class="px-2 py-1 bg-error-container text-on-error-container text-[10px] font-bold rounded-full">Refinement Required</span>
+</div>
+<div class="flex-1 bg-gradient-to-br from-surface-container-low to-tertiary-fixed-dim/10 p-4 rounded-lg mb-4 border border-indigo-50/50">
+<p class="text-sm text-editorial text-on-surface-variant">학생간의 갈등이 발생하여 학교측에서 조사를 진행하고 있습니다. 관련하여 문의사항이 있으시면 교무실로 연락 바랍니다. 현재 조사 단계이므로 확정된 사실은 없습니다.</p>
+</div>
+<div class="flex items-center justify-between mt-auto">
+<div class="flex gap-4">
+<div>
+<p class="text-[10px] text-secondary font-bold uppercase">Field</p>
+<p class="text-xs font-medium">SMS/알림톡</p>
+</div>
+<div>
+<p class="text-[10px] text-secondary font-bold uppercase">Limit</p>
+<p class="text-xs font-medium">82 / 400</p>
+</div>
+</div>
+<button class="p-2 rounded-md bg-surface-container hover:bg-primary hover:text-on-primary transition-all">
+<span class="material-symbols-outlined text-sm" data-icon="content_copy">content_copy</span>
+</button>
+</div>
+</div>
+<!-- Card 5: Format 22 (Full Width in Grid) -->
+<div class="md:col-span-2 bg-surface-container-lowest rounded-xl p-6 shadow-sm flex flex-col group transition-all hover:shadow-md border-t-4 border-indigo-200">
+<div class="flex justify-between items-start mb-6">
+<div>
+<span class="px-2 py-0.5 bg-primary-fixed text-on-primary-fixed text-[10px] font-bold rounded uppercase tracking-tighter">Draft 22</span>
+<h4 class="mt-2 font-bold text-on-surface">종합 사안조사 내용 (Comprehensive)</h4>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-indigo-400 text-lg" data-icon="auto_awesome">auto_awesome</span>
+<span class="px-2 py-1 bg-indigo-50 text-indigo-700 text-[10px] font-bold rounded-full">AI Optimized</span>
+</div>
+</div>
+<div class="flex-1 bg-gradient-to-br from-surface-container-low via-white to-tertiary-fixed-dim/10 p-6 rounded-lg mb-4 border border-indigo-100 shadow-inner">
+<p class="text-sm text-editorial text-on-surface-variant">피해학생과 가해학생의 진술이 상충하는 부분이 있으나, 목격 학생의 일관된 진술과 당시 정황을 종합할 때 가해학생에 의한 지속적인 언어적 압박이 있었던 것으로 판단됨. 학교폭력 전담기구의 심의를 거쳐 적절한 선도 및 보호 조치가 수립되어야 할 사안으로 분류함.</p>
+</div>
+<div class="flex items-center justify-between mt-auto">
+<div class="flex gap-8">
+<div>
+<p class="text-[10px] text-secondary font-bold uppercase tracking-widest">Source Form</p>
+<p class="text-xs font-semibold">서식 12 (Core Investigation)</p>
+</div>
+<div>
+<p class="text-[10px] text-secondary font-bold uppercase tracking-widest">Target Field</p>
+<p class="text-xs font-semibold">종합 조사 결론</p>
+</div>
+<div>
+<p class="text-[10px] text-secondary font-bold uppercase tracking-widest">Profile</p>
+<p class="text-xs font-semibold text-indigo-600">Legal/Analytic</p>
+</div>
+</div>
+<div class="flex gap-2">
+<button class="flex items-center gap-2 px-4 py-2 rounded-md bg-surface-container-high hover:bg-primary hover:text-on-primary transition-all font-bold text-xs">
+<span class="material-symbols-outlined text-sm" data-icon="edit">edit</span>
+                                        Manual Adjust
+                                    </button>
+<button class="p-2 rounded-md bg-primary text-on-primary hover:opacity-90 transition-all shadow-sm">
+<span class="material-symbols-outlined text-sm" data-icon="content_copy">content_copy</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+</div>
+</main>
+<!-- Contextual Utility Tooltip (Simulated) -->
+<div class="fixed bottom-8 right-8 flex flex-col items-end gap-3 pointer-events-none">
+<div class="bg-on-surface text-white p-4 rounded-xl shadow-2xl opacity-90 backdrop-blur-md max-w-xs pointer-events-auto">
+<div class="flex items-center gap-2 mb-2">
+<span class="material-symbols-outlined text-tertiary-fixed" data-icon="tips_and_updates">tips_and_updates</span>
+<p class="text-xs font-bold uppercase tracking-widest">Efficiency Tip</p>
+</div>
+<p class="text-[11px] leading-relaxed">Changes made to the <strong>Main Source Input</strong> will automatically trigger draft regeneration across all 5 format cards.</p>
+</div>
+</div>
+</body></html>
