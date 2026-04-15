@@ -1,29 +1,34 @@
 import { useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
+import type { Form10Draft } from '../../api/caseIntake'
 import { form10Document } from '../../data/mockCase'
 
 interface Form10DocumentProps {
   regenerating: boolean
+  document?: Form10Draft
 }
 
-export function Form10Document({ regenerating }: Form10DocumentProps) {
+export function Form10Document({ regenerating, document = form10Document }: Form10DocumentProps) {
   const [copied, setCopied] = useState(false)
   const copyText = useMemo(
     () =>
       [
         '1. 사안 개요',
-        form10Document.overview,
+        document.overview,
         '',
         '2. 발생 경위',
-        `일시: ${form10Document.timeline.date}`,
-        `장소: ${form10Document.timeline.place}`,
-        `경위: ${form10Document.timeline.summary}`,
+        `일시: ${document.timeline.date}`,
+        `장소: ${document.timeline.place}`,
+        `경위: ${document.timeline.summary}`,
         '',
         '3. 조치 사항',
-        ...form10Document.actions.map((action) => `- ${action}`),
+        ...document.actions.map((action) => `- ${action}`),
       ].join('\n'),
-    [],
+    [document],
   )
+  const charLimit = document.char_limit ?? 4000
+  const charCount = document.char_count ?? copyText.length
+  const progress = `${Math.max(6, Math.min(100, Math.round((charCount / charLimit) * 100)))}%`
 
   const copy = () => {
     navigator.clipboard?.writeText(copyText).then(() => {
@@ -49,8 +54,8 @@ export function Form10Document({ regenerating }: Form10DocumentProps) {
         <article className="flex h-[720px] flex-col overflow-hidden rounded-lg bg-white">
           <header className="flex items-start justify-between gap-6 px-8 py-8 shadow-[0_1px_0_rgba(11,28,48,0.06)]">
             <div>
-              <h3 className="text-xl font-black leading-tight text-ink">{form10Document.title}</h3>
-              <p className="mt-1 text-xs font-medium text-muted">{form10Document.subtitle}</p>
+              <h3 className="text-xl font-black leading-tight text-ink">{document.title}</h3>
+              <p className="mt-1 text-xs font-medium text-muted">{document.subtitle}</p>
             </div>
             <button type="button" onClick={copy} className="inline-flex items-center gap-2 rounded-md bg-primary-soft px-4 py-2 text-sm font-black text-primary transition hover:bg-surface-mid">
               <span className="material-symbols-outlined text-[20px]">{copied ? 'check_circle' : 'content_copy'}</span>
@@ -60,20 +65,20 @@ export function Form10Document({ regenerating }: Form10DocumentProps) {
 
           <div className="flex-1 space-y-8 overflow-y-auto px-10 py-10">
             <ReportSection title="1. 사안 개요">
-              <p>{form10Document.overview}</p>
+              <p>{document.overview}</p>
             </ReportSection>
 
             <ReportSection title="2. 발생 경위 (AI 정리)">
               <div className="space-y-5 rounded-lg bg-surface-low/55 p-7 shadow-[inset_0_0_0_1px_rgba(197,197,212,0.22)]">
-                <FactRow label="일시">{form10Document.timeline.date}</FactRow>
-                <FactRow label="장소">{form10Document.timeline.place}</FactRow>
-                <FactRow label="경위">{form10Document.timeline.summary}</FactRow>
+                <FactRow label="일시">{document.timeline.date}</FactRow>
+                <FactRow label="장소">{document.timeline.place}</FactRow>
+                <FactRow label="경위">{document.timeline.summary}</FactRow>
               </div>
             </ReportSection>
 
             <ReportSection title="3. 조치 사항">
               <ul className="list-inside list-disc space-y-2">
-                {form10Document.actions.map((action) => (
+                {document.actions.map((action) => (
                   <li key={action}>{action}</li>
                 ))}
               </ul>
@@ -82,12 +87,12 @@ export function Form10Document({ regenerating }: Form10DocumentProps) {
 
           <footer className="flex items-center justify-between gap-4 bg-[#f7f9ff] px-8 py-4">
             <div className="flex items-center gap-4">
-              <span className="text-[12px] font-semibold text-[#8190a4]">CHARS: 1,420 / 4,000</span>
+              <span className="text-[12px] font-semibold text-[#8190a4]">CHARS: {charCount.toLocaleString()} / {charLimit.toLocaleString()}</span>
               <div className="h-1.5 w-36 overflow-hidden rounded-md bg-surface-mid">
-                <div className="h-full w-1/3 bg-primary" />
+                <div className="h-full bg-primary" style={{ width: progress }} />
               </div>
             </div>
-            <p className="text-[12px] italic text-[#8190a4]">마지막 생성: 2026.04.14 16:42:01</p>
+            <p className="text-[12px] italic text-[#8190a4]">마지막 생성: {document.generated_at ?? '샘플 문서'}</p>
           </footer>
         </article>
       </div>

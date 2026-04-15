@@ -14,8 +14,8 @@ export function StitchSidebar({ activeView, onViewChange }: StitchSidebarProps) 
   return (
     <aside className="stitch-sidebar fixed left-0 top-0 z-50 h-screen w-64 flex-col bg-[#f8faff]">
       <div className="p-8">
-        <h1 className="text-xl font-black leading-none text-primary">Stoic Archivist</h1>
-        <p className="mt-2 text-xs font-medium uppercase text-muted">Admin Office</p>
+        <h1 className="text-xl font-black leading-none text-primary">학폭기록 아카이브</h1>
+        <p className="mt-2 text-xs font-medium text-muted">학생생활안전부</p>
       </div>
 
       <nav className="flex flex-1 flex-col gap-2 px-4">

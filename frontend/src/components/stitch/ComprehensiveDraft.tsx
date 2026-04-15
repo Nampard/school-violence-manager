@@ -1,11 +1,22 @@
 import { useState } from 'react'
 import { comprehensiveDraft } from '../../data/mockCase'
 
-export function ComprehensiveDraft() {
+interface ComprehensiveDraftProps {
+  body?: string
+  disabled?: boolean
+  generating?: boolean
+}
+
+export function ComprehensiveDraft({ body, disabled = false, generating = false }: ComprehensiveDraftProps) {
   const [copied, setCopied] = useState(false)
+  const displayBody = disabled ? '비활성 상태임' : generating ? '생성 중...' : body ?? comprehensiveDraft.body
 
   const copy = () => {
-    navigator.clipboard?.writeText(comprehensiveDraft.body).then(() => {
+    if (disabled || generating) {
+      return
+    }
+
+    navigator.clipboard?.writeText(displayBody).then(() => {
       setCopied(true)
       setTimeout(() => setCopied(false), 1400)
     })
@@ -25,7 +36,7 @@ export function ComprehensiveDraft() {
       </header>
 
       <div className="rounded-lg bg-gradient-to-br from-surface-low via-white to-sage-soft/35 p-5 shadow-[inset_0_0_0_1px_rgba(45,64,159,0.12)]">
-        <p className="text-sm leading-7 text-on-surface-variant">{comprehensiveDraft.body}</p>
+        <p className={`text-sm leading-7 ${disabled ? 'font-black text-danger' : 'text-on-surface-variant'}`}>{displayBody}</p>
       </div>
 
       <footer className="mt-6 flex flex-col gap-6 xl:flex-row xl:items-center xl:justify-between">
@@ -39,7 +50,12 @@ export function ComprehensiveDraft() {
             <span className="material-symbols-outlined text-[18px]">edit</span>
             Manual Adjust
           </button>
-          <button type="button" onClick={copy} className="flex h-10 w-10 items-center justify-center rounded-md bg-primary text-white transition hover:bg-primary-deep">
+          <button
+            type="button"
+            onClick={copy}
+            disabled={disabled || generating}
+            className="flex h-10 w-10 items-center justify-center rounded-md bg-primary text-white transition hover:bg-primary-deep disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:bg-primary"
+          >
             <span className="material-symbols-outlined text-[20px]">{copied ? 'check_circle' : 'content_copy'}</span>
           </button>
         </div>

@@ -6,6 +6,11 @@ dist/
 build/
 coverage/
 
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+
 # Generated TypeScript output from accidental src emits
 frontend/src/**/*.d.ts
 frontend/src/**/*.d.ts.map
