@@ -24,11 +24,12 @@ class MockGeneratorTest(unittest.TestCase):
         document_type: DocumentType,
         flow_selection: FlowSelection,
         source_blocks: SourceBlocks | None = None,
+        source_text: str = SOURCE_TEXT,
     ):
         return self.generator.generate(
             document_type=document_type,
             flow_selection=flow_selection,
-            source_text=SOURCE_TEXT,
+            source_text=source_text,
             source_blocks=source_blocks,
         )
 
@@ -112,6 +113,85 @@ class MockGeneratorTest(unittest.TestCase):
             with self.subTest(document_type=document_type):
                 block = self.generate(document_type, flow_selection)
                 self.assertEqual(CHAR_LIMITS[document_type], block.char_limit)
+                self.assertLessEqual(len(block.text), block.char_limit)
+
+    def test_generated_text_does_not_expose_prompt_instructions(self) -> None:
+        cases = [
+            (DocumentType.FORM_18_COMMITTEE_REVIEW_RESULT, FlowSelection.COMMITTEE_REQUEST),
+            (DocumentType.FORM_20_SELF_RESOLUTION_CONSENT, FlowSelection.SELF_RESOLUTION),
+            (DocumentType.FORM_21_SELF_RESOLUTION_RESULT, FlowSelection.CLOSURE_FALSE_REPORT),
+            (DocumentType.FORM_22_FINAL_CASE_SUMMARY, FlowSelection.SELF_RESOLUTION),
+            (DocumentType.FORM_22_FINAL_CASE_SUMMARY, FlowSelection.CLOSURE_FALSE_REPORT),
+        ]
+        banned_phrases = [
+            "정리함",
+            "완곡하게",
+            "행정문체",
+            "기재할 수 있도록",
+            "반영할",
+            "안내하며",
+        ]
+
+        for document_type, flow_selection in cases:
+            with self.subTest(document_type=document_type, flow_selection=flow_selection):
+                block = self.generate(document_type, flow_selection)
+                for phrase in banned_phrases:
+                    self.assertNotIn(phrase, block.text)
+
+    def test_draft_18_to_22_begin_with_source_summary_then_flow_judgment(self) -> None:
+        source_text = (
+            "2026년 4월 15일 점심시간 운동장 뒤편에서 관련 학생 간 언어적 충돌이 있었고, "
+            "피해 관련 학생은 불안감을 호소하였으며 담임교사가 즉시 상담을 실시함."
+        )
+        cases = [
+            (
+                DocumentType.FORM_18_COMMITTEE_REVIEW_RESULT,
+                FlowSelection.SELF_RESOLUTION,
+                "학교장 자체해결 요건",
+            ),
+            (
+                DocumentType.FORM_18_COMMITTEE_REVIEW_RESULT,
+                FlowSelection.COMMITTEE_REQUEST,
+                "학교폭력대책심의위원회 심의 요청",
+            ),
+            (
+                DocumentType.FORM_19_COMMITTEE_CLOSURE_RESULT,
+                FlowSelection.CLOSURE_FALSE_REPORT,
+                "오인신고",
+            ),
+            (
+                DocumentType.FORM_20_SELF_RESOLUTION_CONSENT,
+                FlowSelection.SELF_RESOLUTION,
+                "학교장 자체해결 절차",
+            ),
+            (
+                DocumentType.FORM_21_SELF_RESOLUTION_RESULT,
+                FlowSelection.CLOSURE_SUSPECTED_CASE,
+                "의심사안",
+            ),
+            (
+                DocumentType.FORM_22_FINAL_CASE_SUMMARY,
+                FlowSelection.SELF_RESOLUTION,
+                "학교장 자체해결 절차",
+            ),
+            (
+                DocumentType.FORM_22_FINAL_CASE_SUMMARY,
+                FlowSelection.CLOSURE_ADULT_OR_UNIDENTIFIABLE,
+                "관련자 성인 등 특정 불가",
+            ),
+        ]
+
+        for document_type, flow_selection, expected_judgment in cases:
+            with self.subTest(document_type=document_type, flow_selection=flow_selection):
+                block = self.generate(document_type, flow_selection, source_text=source_text)
+                self.assertTrue(block.text.startswith("사안조사 결과, 2026년 4월 15일"))
+                self.assertIn("운동장 뒤편", block.text)
+                self.assertIn("언어적 충돌", block.text)
+                self.assertIn(expected_judgment, block.text)
+                self.assertNotIn("....", block.text)
+                self.assertNotIn("즉시 상.", block.text)
+                self.assertNotIn("즉시 상 등", block.text)
+                self.assertNotIn("즉시 등", block.text)
                 self.assertLessEqual(len(block.text), block.char_limit)
 
     def test_source_text_is_required(self) -> None:
