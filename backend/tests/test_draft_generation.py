@@ -4,9 +4,9 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from app.ai.generator import MockGenerator, SourceBlocks
+from app.ai.generator import GenerationOptions, MockGenerator, SourceBlocks
 from app.core.errors import DraftDisabledByFlowError, FormSourceRequiredError
-from app.domain.drafts import CHAR_LIMITS, CLOSURE_REASON_LABELS, DocumentType, FlowSelection
+from app.domain.drafts import CHAR_LIMITS, CLOSURE_REASON_LABELS, DocumentType, FlowSelection, GenerationStrictness
 
 
 SOURCE_TEXT = (
@@ -25,12 +25,14 @@ class MockGeneratorTest(unittest.TestCase):
         flow_selection: FlowSelection,
         source_blocks: SourceBlocks | None = None,
         source_text: str = SOURCE_TEXT,
+        generation_options: GenerationOptions | None = None,
     ):
         return self.generator.generate(
             document_type=document_type,
             flow_selection=flow_selection,
             source_text=source_text,
             source_blocks=source_blocks,
+            generation_options=generation_options,
         )
 
     def test_self_resolution_draft_18_contains_required_factors(self) -> None:
@@ -193,6 +195,40 @@ class MockGeneratorTest(unittest.TestCase):
                 self.assertNotIn("즉시 상 등", block.text)
                 self.assertNotIn("즉시 등", block.text)
                 self.assertLessEqual(len(block.text), block.char_limit)
+
+    def test_balanced_strictness_changes_mock_generation_style(self) -> None:
+        strict_block = self.generate(
+            DocumentType.FORM_20_SELF_RESOLUTION_CONSENT,
+            FlowSelection.SELF_RESOLUTION,
+            generation_options=GenerationOptions(strictness=GenerationStrictness.STRICT),
+        )
+        balanced_block = self.generate(
+            DocumentType.FORM_20_SELF_RESOLUTION_CONSENT,
+            FlowSelection.SELF_RESOLUTION,
+            generation_options=GenerationOptions(strictness=GenerationStrictness.BALANCED),
+        )
+
+        self.assertNotEqual(strict_block.text, balanced_block.text)
+        self.assertIn("보호자에게 관련 내용을 전달하고 동의 절차를 진행하고자 함", balanced_block.text)
+        self.assertLessEqual(len(balanced_block.text), balanced_block.char_limit)
+
+    def test_balanced_self_resolution_keeps_required_legal_factors(self) -> None:
+        block = self.generate(
+            DocumentType.FORM_18_COMMITTEE_REVIEW_RESULT,
+            FlowSelection.SELF_RESOLUTION,
+            generation_options=GenerationOptions(strictness=GenerationStrictness.BALANCED),
+        )
+
+        required_phrases = [
+            "양측 간 사과",
+            "신체적/정신적 피해 경미",
+            "지속적이거나 반복적으로 보기 어려운 점",
+            "보복행위가 없었던 점",
+            "학교폭력 예방 및 대책에 관한 법률 상 학교장 자체해결",
+        ]
+        for phrase in required_phrases:
+            self.assertIn(phrase, block.text)
+        self.assertLessEqual(len(block.text), block.char_limit)
 
     def test_source_text_is_required(self) -> None:
         with self.assertRaises(FormSourceRequiredError):

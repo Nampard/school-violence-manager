@@ -2,7 +2,7 @@ from uuid import uuid4
 
 from fastapi import APIRouter, Request
 
-from app.ai.generator import SourceBlocks
+from app.ai.generator import GenerationOptions, SourceBlocks
 from app.schemas.documents import GenerateDocumentRequest, GenerateDocumentResponse
 from app.services.generated_text_blocks.service import GeneratedTextBlockService
 
@@ -22,6 +22,10 @@ def generate_document(case_id: str, payload: GenerateDocumentRequest, request: R
         source_blocks=SourceBlocks(
             form_18_text=payload.source_blocks.form_18_text,
             form_19_text=payload.source_blocks.form_19_text,
+        ),
+        generation_options=GenerationOptions(
+            strictness=payload.generation_options.strictness,
+            char_limit_mode=payload.generation_options.char_limit_mode,
         ),
     )
 

@@ -16,8 +16,6 @@ export interface DraftCard {
   draftNo: string
   title: string
   titleNote?: string
-  status: 'Review Pending' | 'Drafting' | 'Ready' | 'Refinement Required'
-  statusTone: 'sage' | 'quiet' | 'danger'
   tagTone: 'sage' | 'blue' | 'indigo'
   field: string
   limit: string
@@ -51,8 +49,6 @@ export const documentDrafts: DraftCard[] = [
     draftNo: 'DRAFT 18',
     title: '전담기구 보고서',
     titleNote: '(자체해결 or 심의요청)',
-    status: 'Review Pending',
-    statusTone: 'sage',
     tagTone: 'sage',
     field: '자체해결 또는 심의위원회 요청',
     limit: '124 / 500',
@@ -66,8 +62,6 @@ export const documentDrafts: DraftCard[] = [
     documentType: 'FORM_19_COMMITTEE_CLOSURE_RESULT',
     draftNo: 'DRAFT 19',
     title: '전담기구 보고서(종결)',
-    status: 'Drafting',
-    statusTone: 'quiet',
     tagTone: 'blue',
     field: '종결 시(오인신고 등)',
     limit: '0 / 500',
@@ -81,8 +75,6 @@ export const documentDrafts: DraftCard[] = [
     documentType: 'FORM_20_SELF_RESOLUTION_CONSENT',
     draftNo: 'DRAFT 20',
     title: '자체해결 동의서(사안조사 내용)',
-    status: 'Ready',
-    statusTone: 'sage',
     tagTone: 'indigo',
     field: '보호자 전달 통지서 내용',
     limit: '118 / 400',
@@ -95,8 +87,6 @@ export const documentDrafts: DraftCard[] = [
     documentType: 'FORM_21_SELF_RESOLUTION_RESULT',
     draftNo: 'DRAFT 21',
     title: '종결처리 동의서(사안조사 내용)',
-    status: 'Refinement Required',
-    statusTone: 'danger',
     tagTone: 'indigo',
     field: '보호자 전달 통지서 내용',
     limit: '82 / 400',

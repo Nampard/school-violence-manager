@@ -9,6 +9,7 @@ interface DraftCardProps {
   limit?: string
   disabled?: boolean
   generating?: boolean
+  locked?: boolean
   selectedFlow?: FlowSelection | null
   onOptionSelect?: (option: string) => void
 }
@@ -19,10 +20,48 @@ const tagToneClass: Record<DraftCard['tagTone'], string> = {
   indigo: 'bg-primary-soft text-primary',
 }
 
-const statusToneClass: Record<DraftCard['statusTone'], string> = {
+type DraftStatusTone = 'sage' | 'quiet' | 'danger' | 'primary'
+
+interface DraftStatus {
+  label: string
+  tone: DraftStatusTone
+}
+
+const statusToneClass: Record<DraftStatusTone, string> = {
   sage: 'bg-sage-soft text-sage',
   quiet: 'bg-surface-mid text-muted',
   danger: 'bg-danger-soft text-danger',
+  primary: 'bg-primary-soft text-primary',
+}
+
+function getDraftStatus({
+  disabled,
+  generating,
+  locked,
+  generated,
+}: {
+  disabled: boolean
+  generating: boolean
+  locked: boolean
+  generated: boolean
+}): DraftStatus {
+  if (disabled) {
+    return { label: '비활성', tone: 'danger' }
+  }
+
+  if (generating) {
+    return { label: '생성 중', tone: 'quiet' }
+  }
+
+  if (locked) {
+    return { label: '초안 고정됨', tone: 'sage' }
+  }
+
+  if (generated) {
+    return { label: '초안 생성됨', tone: 'primary' }
+  }
+
+  return { label: '초안 대기', tone: 'quiet' }
 }
 
 export function DraftCardView({
@@ -31,11 +70,13 @@ export function DraftCardView({
   limit,
   disabled = false,
   generating = false,
+  locked = false,
   selectedFlow = null,
   onOptionSelect,
 }: DraftCardProps) {
   const [copied, setCopied] = useState(false)
   const isGenerated = body !== undefined
+  const status = getDraftStatus({ disabled, generating, locked, generated: isGenerated })
   const displayBody = disabled ? '비활성 상태임' : generating ? '생성 중...' : body ?? draft.body
 
   const copy = () => {
@@ -59,7 +100,7 @@ export function DraftCardView({
             {draft.titleNote && <span className="ml-1 inline-block text-[0.8em]">{draft.titleNote}</span>}
           </h4>
         </div>
-        <span className={`rounded-md px-3 py-2 text-[11px] font-black ${statusToneClass[draft.statusTone]}`}>{draft.status}</span>
+        <span className={`rounded-md px-3 py-2 text-[11px] font-black ${statusToneClass[status.tone]}`}>{status.label}</span>
       </header>
 
       <div className="ai-draft-surface mb-4 flex-1 rounded-lg p-4">
@@ -84,8 +125,9 @@ export function DraftCardView({
               <button
                 key={option}
                 type="button"
+                disabled={locked}
                 onClick={() => onOptionSelect?.(option)}
-                className={`rounded-md px-3 py-2 text-xs font-black transition ${
+                className={`rounded-md px-3 py-2 text-xs font-black transition disabled:cursor-not-allowed disabled:opacity-55 ${
                   active ? 'bg-primary text-white' : 'bg-surface-mid text-primary hover:bg-primary hover:text-white'
                 }`}
               >

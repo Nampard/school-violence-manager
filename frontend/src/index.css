@@ -96,6 +96,10 @@
     display: flex;
   }
 
+  .stitch-topbar-help {
+    display: flex;
+  }
+
   .case-intake-grid,
   .document-workspace,
   .draft-grid {
@@ -125,10 +129,6 @@
     grid-column: 1 / -1;
   }
 
-  .floating-tip {
-    margin-top: 32px;
-  }
-
   @media (min-width: 980px) {
     .stitch-sidebar {
       display: flex;
@@ -144,6 +144,10 @@
     }
 
     .stitch-mobile-tabs {
+      display: none;
+    }
+
+    .stitch-topbar-help {
       display: none;
     }
   }
@@ -168,14 +172,6 @@
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    .floating-tip {
-      position: fixed;
-      right: 40px;
-      bottom: 32px;
-      z-index: 40;
-      max-width: 384px;
-      margin-top: 0;
-    }
   }
 
   @media (min-width: 1280px) {

@@ -1,6 +1,7 @@
 # 백엔드 작업 메모
 
 > 작성일: 2026-04-15  
+> 프로젝트 버전: 0.1.0
 > 상태: 초안  
 > 목적: 학교폭력 관리 프로그램의 백엔드 구조와 문구 생성 API 운용 방식을 다음 검토 전까지 보존한다.
 
@@ -51,7 +52,7 @@ generated_text_blocks 기록, source_form 연결, 감사 로그
 
 ## 3. 핵심 API 형태
 
-문서 생성 요청은 기존 계약의 방향을 유지해 아래 API를 중심으로 설계한다.
+문서 생성 요청은 1차 구현에서 아래 API를 중심으로 동기 처리한다. 장기적으로 저장, 승인, export가 붙으면 job/polling 방식으로 확장할 수 있다.
 
 ```http
 POST /api/v1/cases/{case_id}/documents/generate
@@ -62,31 +63,41 @@ POST /api/v1/cases/{case_id}/documents/generate
 ```json
 {
   "document_type": "FORM_18_COMMITTEE_REVIEW_RESULT",
-  "source_form": "FORM_12_INVESTIGATION_REPORT",
-  "target_fields": ["심의내용"],
-  "style_profile": "ADMIN_BULLET_SUMMARY",
-  "char_limit": 500
+  "flow_selection": "SELF_RESOLUTION",
+  "source_text": "서식12 사안조사 보고서 원문",
+  "source_blocks": {
+    "form_18_text": "선택적으로 전달되는 Draft18 생성문",
+    "form_19_text": "선택적으로 전달되는 Draft19 생성문"
+  },
+  "generation_options": {
+    "strictness": "STRICT",
+    "char_limit_mode": "ENFORCE"
+  },
+  "output_mode": "COPY_BLOCKS"
 }
 ```
 
-응답은 프론트가 바로 복사 카드로 렌더링할 수 있게 `copy_blocks`를 포함한다.
+응답은 프론트가 바로 복사 카드로 렌더링할 수 있게 단일 `copy_block`을 포함한다.
+
+`generation_options.strictness`는 `MockGenerator`와 이후 실제 AI provider가 공통으로 따라야 하는 생성 정책이다. `STRICT`는 필수 판단 근거 중심의 짧고 단정한 문구를 만들고, `BALANCED`는 같은 법적/행정 기준을 유지하면서 문장을 조금 더 자연스럽게 풀어 쓴다.
 
 ```json
 {
+  "status": "success",
   "data": {
     "case_id": "case_001",
     "document_type": "FORM_18_COMMITTEE_REVIEW_RESULT",
-    "copy_blocks": [
-      {
-        "label": "심의내용",
-        "source_form": "FORM_12_INVESTIGATION_REPORT",
-        "target_field": "심의내용",
-        "text": "조사 결과 관련 학생 간 언어적 갈등이 확인되었으며...",
-        "char_limit": 500,
-        "style_profile": "ADMIN_BULLET_SUMMARY",
-        "review_required": true
-      }
-    ]
+    "flow_selection": "SELF_RESOLUTION",
+    "copy_block": {
+      "label": "DRAFT 18 사안내용",
+      "source_form": "FORM_12_INVESTIGATION_REPORT",
+      "target_form": "FORM_18_COMMITTEE_REVIEW_RESULT",
+      "target_field": "자체해결 또는 심의위원회 요청",
+      "text": "조사 결과 관련 학생 간 언어적 갈등이 확인되었으며...",
+      "char_limit": 500,
+      "style_profile": "BULLET_ADMIN",
+      "review_required": true
+    }
   },
   "meta": {
     "request_id": "req_..."
@@ -104,7 +115,7 @@ POST /api/v1/cases/{case_id}/documents/generate
 4. `<서식12>` 조사관 입력 저장 API 구현
 5. `<서식10/18/19/20/21/22>` 문구 생성 API 구현
 6. 실제 AI API 호출부는 인터페이스만 먼저 만들고 mock provider로 테스트
-7. 이후 OpenAI 등 실제 provider를 환경변수 기반으로 연결
+7. 이후 Gemini/OpenAI 등 실제 provider를 환경변수 기반으로 연결
 
 ---
 
@@ -115,7 +126,8 @@ POST /api/v1/cases/{case_id}/documents/generate
 `AiTextGenerator` 같은 서비스 인터페이스를 두고 아래 provider를 교체 가능하게 구성한다.
 
 - `MockGenerator`: 개발과 테스트용 고정 응답 생성기
-- `OpenAIGenerator`: 실제 API 연결용 provider
+- `GeminiGenerator`: Gemini API 연결용 provider
+- `OpenAIGenerator`: OpenAI API 연결용 provider
 
 이 구조를 사용하면 토큰을 아끼면서 백엔드 API, DB 저장, 프론트 렌더링, 에러 처리 테스트를 먼저 진행할 수 있다.
 
@@ -210,7 +222,7 @@ POST /api/v1/cases/{case_id}/intake/generate
 
 - FastAPI 백엔드를 새로 만들고, 프론트의 DRAFT 18/19 선택 옵션에 따라 각 Draft의 생성 방향과 활성/비활성 상태가 일관되게 동작하도록 한다.
 - 사용자가 선택한 방식에 따라 **개별 Draft 생성 API**를 유지한다. 프론트는 선택 흐름을 기준으로 어떤 Draft가 활성/비활성인지 계산하고, 활성 Draft만 백엔드에 개별 생성 요청을 보낸다.
-- AI 연동은 1차에서 `MockGenerator`로 구현한다. 실제 OpenAI provider는 같은 인터페이스에 나중에 붙인다.
+- AI 연동은 1차에서 `MockGenerator`로 구현한다. 실제 Gemini/OpenAI provider는 같은 인터페이스에 나중에 붙인다.
 - 기존 미커밋 프론트 변경과 `docs/BACKEND_PLAN.md`는 보존하고 덮어쓰지 않는다.
 
 ### Key Changes
@@ -222,7 +234,7 @@ POST /api/v1/cases/{case_id}/intake/generate
 
 - 개별 Draft 생성 API를 만든다.
   - `POST /api/v1/cases/{case_id}/documents/generate`
-  - 요청 필드는 `document_type`, `flow_selection`, `source_text`, `source_blocks`, `output_mode`를 받는다.
+  - 요청 필드는 `document_type`, `flow_selection`, `source_text`, `source_blocks`, `generation_options`, `output_mode`를 받는다.
   - `flow_selection` enum:
     - `SELF_RESOLUTION`
     - `COMMITTEE_REQUEST`

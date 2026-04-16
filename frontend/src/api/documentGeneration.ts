@@ -1,4 +1,5 @@
 import type { DocumentType, FlowSelection } from '../domain/draftFlow'
+import type { CharLimitMode, GenerationStrictness } from '../domain/generationSettings'
 
 export interface GenerateDocumentPayload {
   document_type: DocumentType
@@ -7,6 +8,10 @@ export interface GenerateDocumentPayload {
   source_blocks?: {
     form_18_text?: string
     form_19_text?: string
+  }
+  generation_options?: {
+    strictness: GenerationStrictness
+    char_limit_mode: CharLimitMode
   }
   output_mode?: 'COPY_BLOCKS'
 }

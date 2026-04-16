@@ -3,11 +3,11 @@ import type { CopyBlock } from '../api/documentGeneration'
 import { generateDocumentDraft } from '../api/documentGeneration'
 import { ComprehensiveDraft } from '../components/stitch/ComprehensiveDraft'
 import { DraftCardView } from '../components/stitch/DraftCard'
-import { FloatingTip } from '../components/stitch/FloatingTip'
 import { SourceDossier } from '../components/stitch/SourceDossier'
 import { caseMeta, comprehensiveDraft, documentDrafts, investigationSource } from '../data/mockCase'
 import type { DocumentType, FlowSelection } from '../domain/draftFlow'
 import { activeDocumentsByFlow, getFlowForOption, isClosureFlow, isDraftEnabled } from '../domain/draftFlow'
+import type { GenerationSettings } from '../domain/generationSettings'
 
 const allDocumentTypes: DocumentType[] = [
   'FORM_18_COMMITTEE_REVIEW_RESULT',
@@ -17,7 +17,11 @@ const allDocumentTypes: DocumentType[] = [
   'FORM_22_FINAL_CASE_SUMMARY',
 ]
 
-export function DocumentManagement() {
+interface DocumentManagementProps {
+  generationSettings: GenerationSettings
+}
+
+export function DocumentManagement({ generationSettings }: DocumentManagementProps) {
   const [source, setSource] = useState(investigationSource)
   const [dirty, setDirty] = useState(false)
   const [syncing, setSyncing] = useState(false)
@@ -25,8 +29,13 @@ export function DocumentManagement() {
   const [copyBlocks, setCopyBlocks] = useState<Partial<Record<DocumentType, CopyBlock>>>({})
   const [generatingDocuments, setGeneratingDocuments] = useState<ReadonlySet<DocumentType>>(new Set())
   const [apiError, setApiError] = useState<string | null>(null)
+  const [submitted, setSubmitted] = useState(false)
 
   const changeSource = (value: string) => {
+    if (submitted) {
+      return
+    }
+
     setSource(value)
     setDirty(true)
   }
@@ -68,6 +77,10 @@ export function DocumentManagement() {
         flow_selection: nextFlow,
         source_text: source,
         source_blocks: sourceBlocks,
+        generation_options: {
+          strictness: generationSettings.strictness,
+          char_limit_mode: generationSettings.charLimitMode,
+        },
       })
 
       setCopyBlocks((current) => ({
@@ -111,6 +124,10 @@ export function DocumentManagement() {
   }
 
   const selectFlowOption = (option: string) => {
+    if (submitted) {
+      return
+    }
+
     const nextFlow = getFlowForOption(option)
     if (!nextFlow) {
       return
@@ -126,6 +143,12 @@ export function DocumentManagement() {
   }
 
   const syncSource = () => {
+    if (submitted) {
+      setSubmitted(false)
+      setApiError(null)
+      return
+    }
+
     setSyncing(true)
     void (async () => {
       if (flowSelection) {
@@ -139,6 +162,24 @@ export function DocumentManagement() {
       }
       setSyncing(false)
     })()
+  }
+
+  const submitDrafts = () => {
+    if (!flowSelection) {
+      setApiError('먼저 DRAFT 18 또는 DRAFT 19의 처리 흐름을 선택해 주세요.')
+      return
+    }
+
+    const activeDocuments = activeDocumentsByFlow[flowSelection]
+    const missingDocument = activeDocuments.find((documentType) => !copyBlocks[documentType])
+    if (missingDocument) {
+      setApiError('활성 Draft 초안을 먼저 생성한 뒤 고정해 주세요.')
+      return
+    }
+
+    setApiError(null)
+    setDirty(false)
+    setSubmitted(true)
   }
 
   const getLimitLabel = (documentType: DocumentType, fallback: string) => {
@@ -156,6 +197,7 @@ export function DocumentManagement() {
         <div>
           <h2 className="text-[30px] font-black leading-tight text-ink">Draft Generation Workspace</h2>
           <p className="mt-2 text-sm leading-6 text-muted">Convert primary case investigations into multiple specialized school report formats.</p>
+          {submitted && <p className="mt-3 text-sm font-black leading-6 text-sage">초안이 고정되었습니다. 고정 해제 후 다시 수정하거나 생성할 수 있습니다.</p>}
           {apiError && <p className="mt-3 text-sm font-black leading-6 text-danger">{apiError}</p>}
         </div>
 
@@ -165,17 +207,22 @@ export function DocumentManagement() {
             onClick={syncSource}
             className="rounded-md bg-surface-mid px-6 py-2 text-sm font-black text-primary transition hover:bg-surface-high"
           >
-            {syncing ? 'Refreshing...' : 'Refresh All Drafts'}
+            {submitted ? '고정 해제(리셋)' : syncing ? '초안 생성 중' : '초안 다시 생성'}
           </button>
-          <button type="button" className="rounded-md bg-primary px-6 py-2 text-sm font-black text-white transition hover:bg-primary-deep">
-            Submit Documentation
+          <button
+            type="button"
+            onClick={submitDrafts}
+            disabled={submitted || syncing || generatingDocuments.size > 0}
+            className="rounded-md bg-primary px-6 py-2 text-sm font-black text-white transition hover:bg-primary-deep disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:bg-primary"
+          >
+            {submitted ? '초안 고정됨' : '초안 고정'}
           </button>
         </div>
       </header>
 
       <div className="document-workspace">
         <div className="source-sticky">
-          <SourceDossier value={source} dirty={dirty || syncing} onChange={changeSource} onSync={syncSource} />
+          <SourceDossier value={source} dirty={dirty || syncing} locked={submitted} onChange={changeSource} onSync={syncSource} />
         </div>
 
         <section>
@@ -188,6 +235,7 @@ export function DocumentManagement() {
                 limit={getLimitLabel(draft.documentType, draft.limit)}
                 disabled={!isDraftEnabled(draft.documentType, flowSelection)}
                 generating={generatingDocuments.has(draft.documentType)}
+                locked={submitted}
                 selectedFlow={flowSelection}
                 onOptionSelect={selectFlowOption}
               />
@@ -197,16 +245,11 @@ export function DocumentManagement() {
                 body={copyBlocks[comprehensiveDraft.documentType]?.text}
                 disabled={!isDraftEnabled(comprehensiveDraft.documentType, flowSelection)}
                 generating={generatingDocuments.has(comprehensiveDraft.documentType)}
+                locked={submitted}
               />
             </div>
           </div>
         </section>
-      </div>
-
-      <div>
-        <FloatingTip title="자동 생성 안내">
-          <strong>서식 12 원천 입력</strong>을 수정하면 연결된 후속 문구 카드가 같은 기준으로 다시 정리됩니다.
-        </FloatingTip>
       </div>
     </div>
   )

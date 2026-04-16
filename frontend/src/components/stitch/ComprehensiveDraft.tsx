@@ -5,10 +5,51 @@ interface ComprehensiveDraftProps {
   body?: string
   disabled?: boolean
   generating?: boolean
+  locked?: boolean
 }
 
-export function ComprehensiveDraft({ body, disabled = false, generating = false }: ComprehensiveDraftProps) {
+type ComprehensiveStatusTone = 'sage' | 'quiet' | 'danger' | 'primary'
+
+const statusToneClass: Record<ComprehensiveStatusTone, string> = {
+  sage: 'bg-sage-soft text-sage',
+  quiet: 'bg-surface-mid text-muted',
+  danger: 'bg-danger-soft text-danger',
+  primary: 'bg-primary-soft text-primary',
+}
+
+function getComprehensiveStatus({
+  disabled,
+  generating,
+  locked,
+  generated,
+}: {
+  disabled: boolean
+  generating: boolean
+  locked: boolean
+  generated: boolean
+}) {
+  if (disabled) {
+    return { label: '비활성', tone: 'danger' as const }
+  }
+
+  if (generating) {
+    return { label: '생성 중', tone: 'quiet' as const }
+  }
+
+  if (locked) {
+    return { label: '초안 고정됨', tone: 'sage' as const }
+  }
+
+  if (generated) {
+    return { label: '초안 생성됨', tone: 'primary' as const }
+  }
+
+  return { label: '초안 대기', tone: 'quiet' as const }
+}
+
+export function ComprehensiveDraft({ body, disabled = false, generating = false, locked = false }: ComprehensiveDraftProps) {
   const [copied, setCopied] = useState(false)
+  const status = getComprehensiveStatus({ disabled, generating, locked, generated: body !== undefined })
   const displayBody = disabled ? '비활성 상태임' : generating ? '생성 중...' : body ?? comprehensiveDraft.body
 
   const copy = () => {
@@ -29,9 +70,9 @@ export function ComprehensiveDraft({ body, disabled = false, generating = false 
           <span className="rounded bg-primary-soft px-2.5 py-1 text-[11px] font-black uppercase text-primary">{comprehensiveDraft.draftNo}</span>
           <h4 className="mt-3 text-lg font-black text-ink">{comprehensiveDraft.title}</h4>
         </div>
-        <div className="flex items-center gap-2 rounded-md bg-primary-soft px-3 py-2 text-[11px] font-black text-primary">
+        <div className={`flex items-center gap-2 rounded-md px-3 py-2 text-[11px] font-black ${statusToneClass[status.tone]}`}>
           <span className="material-symbols-outlined text-[17px]">auto_awesome</span>
-          AI Optimized
+          {status.label}
         </div>
       </header>
 
@@ -46,10 +87,6 @@ export function ComprehensiveDraft({ body, disabled = false, generating = false 
           <Meta label="Profile" value={comprehensiveDraft.profile} accent />
         </div>
         <div className="flex gap-3">
-          <button type="button" className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-surface-mid px-4 text-sm font-black text-ink transition hover:bg-surface-high">
-            <span className="material-symbols-outlined text-[18px]">edit</span>
-            Manual Adjust
-          </button>
           <button
             type="button"
             onClick={copy}

@@ -21,6 +21,16 @@ class OutputMode(str, Enum):
     COPY_BLOCKS = "COPY_BLOCKS"
 
 
+class GenerationStrictness(str, Enum):
+    STRICT = "STRICT"
+    BALANCED = "BALANCED"
+
+
+class CharLimitMode(str, Enum):
+    ENFORCE = "ENFORCE"
+    WARN = "WARN"
+
+
 class StyleProfile(str, Enum):
     BULLET_ADMIN = "BULLET_ADMIN"
     GUARDIAN_NEUTRAL = "GUARDIAN_NEUTRAL"
