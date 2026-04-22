@@ -1,17 +1,25 @@
 import type { GenerationSettings } from '../../domain/generationSettings'
 import { generationSettingDescriptions, generationSettingLabels } from '../../domain/generationSettings'
+import type { AIStatus } from '../../api/aiStatus'
 
 interface GenerationControlPanelProps {
   open: boolean
   settings: GenerationSettings
+  aiStatus: AIStatus | null
   onClose: () => void
   onChange: (settings: GenerationSettings) => void
 }
 
-export function GenerationControlPanel({ open, settings, onClose, onChange }: GenerationControlPanelProps) {
+export function GenerationControlPanel({ open, settings, aiStatus, onClose, onChange }: GenerationControlPanelProps) {
   if (!open) {
     return null
   }
+
+  const engineLabel = aiStatus?.label ?? generationSettingLabels.engine[settings.engine]
+  const engineDescription = aiStatus?.provider === 'gemini' ? aiStatus.model ?? 'Gemini API' : '토큰을 쓰지 않는 로컬 개발용 생성기'
+  const statusLabel = aiStatus?.provider === 'gemini' ? 'Gemini 사용 중' : 'Mock 사용 중'
+  const statusClass =
+    aiStatus?.provider === 'gemini' ? 'bg-primary/10 text-primary' : 'bg-sage-soft text-sage'
 
   return (
     <aside
@@ -39,12 +47,12 @@ export function GenerationControlPanel({ open, settings, onClose, onChange }: Ge
           <p className="text-xs font-black uppercase tracking-[0.14em] text-muted">Generation Engine</p>
           <div className="mt-3 flex items-center justify-between gap-4">
             <div>
-              <p className="text-sm font-black text-ink">{generationSettingLabels.engine[settings.engine]}</p>
-              <p className="mt-1 text-xs font-medium text-muted">토큰을 쓰지 않는 로컬 개발용 생성기</p>
+              <p className="text-sm font-black text-ink">{engineLabel}</p>
+              <p className="mt-1 text-xs font-medium text-muted">{engineDescription}</p>
             </div>
-            <span className="rounded-md bg-sage-soft px-3 py-1 text-xs font-black text-sage">Mock 사용 중</span>
+            <span className={`rounded-md px-3 py-1 text-xs font-black ${statusClass}`}>{statusLabel}</span>
           </div>
-          <p className="mt-3 text-xs leading-5 text-muted">Gemini API 키는 프론트에 저장하지 않고, 추후 FastAPI 백엔드 환경변수로 연결합니다.</p>
+          <p className="mt-3 text-xs leading-5 text-muted">Gemini API 키는 프론트에 저장하지 않고 FastAPI 백엔드의 .env에서 읽습니다.</p>
         </section>
 
         <section>

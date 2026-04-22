@@ -1,4 +1,4 @@
-export type GenerationEngine = 'MOCK'
+export type GenerationEngine = 'MOCK' | 'GEMINI'
 export type GenerationTone = 'FORM_SPECIFIC'
 export type GenerationStrictness = 'STRICT' | 'BALANCED'
 export type CharLimitMode = 'ENFORCE' | 'WARN'
@@ -20,6 +20,7 @@ export const defaultGenerationSettings: GenerationSettings = {
 export const generationSettingLabels = {
   engine: {
     MOCK: 'MockGenerator',
+    GEMINI: 'Gemini API',
   },
   tone: {
     FORM_SPECIFIC: '서식별 자동 문체',

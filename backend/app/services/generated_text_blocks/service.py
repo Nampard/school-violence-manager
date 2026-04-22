@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
 from app.ai.generator import CopyBlock, GenerationOptions, MockGenerator, SourceBlocks
+from app.ai.provider import build_document_generator
 from app.domain.drafts import DocumentType, FlowSelection
 from app.services.generated_text_blocks.repository import InMemoryGeneratedTextBlockRepository
 
@@ -21,7 +22,7 @@ class GeneratedTextBlockService:
         generator: MockGenerator | None = None,
         repository: InMemoryGeneratedTextBlockRepository | None = None,
     ) -> None:
-        self._generator = generator or MockGenerator()
+        self._generator = generator or build_document_generator()
         self._repository = repository or InMemoryGeneratedTextBlockRepository()
 
     def generate(

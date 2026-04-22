@@ -1,6 +1,6 @@
 from dataclasses import asdict, dataclass
 
-from app.core.errors import DraftDisabledByFlowError, FormSourceRequiredError
+from app.core.errors import AIGenerationFailedError, AIServiceUnavailableError, DraftDisabledByFlowError, FormSourceRequiredError
 from app.domain.drafts import (
     CHAR_LIMITS,
     CLOSURE_REASON_LABELS,
@@ -249,3 +249,128 @@ class MockGenerator:
             )
 
         raise DraftDisabledByFlowError()
+
+
+class GeminiGenerator(MockGenerator):
+    def __init__(self, *, api_key: str, model: str) -> None:
+        self._api_key = api_key
+        self._model = model
+
+    def _generate_text(
+        self,
+        document_type: DocumentType,
+        flow_selection: FlowSelection,
+        source_text: str,
+        source_blocks: SourceBlocks,
+        generation_options: GenerationOptions,
+    ) -> str:
+        if not self._api_key:
+            raise AIServiceUnavailableError()
+
+        try:
+            from google import genai
+        except ImportError as exc:
+            raise AIServiceUnavailableError() from exc
+
+        prompt = self._build_prompt(document_type, flow_selection, source_text, source_blocks, generation_options)
+
+        try:
+            client = genai.Client(api_key=self._api_key)
+            response = client.models.generate_content(model=self._model, contents=prompt)
+        except Exception as exc:
+            raise AIGenerationFailedError() from exc
+
+        text = self._clean_response(getattr(response, "text", ""))
+        if not text:
+            raise AIGenerationFailedError()
+
+        return self._limit_text(text, CHAR_LIMITS[document_type])
+
+    def _build_prompt(
+        self,
+        document_type: DocumentType,
+        flow_selection: FlowSelection,
+        source_text: str,
+        source_blocks: SourceBlocks,
+        generation_options: GenerationOptions,
+    ) -> str:
+        char_limit = CHAR_LIMITS[document_type]
+        target_field = TARGET_FIELDS[document_type]
+        strictness = "짧고 단정하게" if generation_options.strictness == GenerationStrictness.STRICT else "자연스럽되 기준은 유지"
+        source_block_text = "\n".join(
+            block
+            for block in [
+                f"DRAFT18 참고문: {source_blocks.form_18_text}" if source_blocks.form_18_text else "",
+                f"DRAFT19 참고문: {source_blocks.form_19_text}" if source_blocks.form_19_text else "",
+            ]
+            if block
+        )
+
+        rules = self._draft_rules(document_type, flow_selection)
+        return f"""
+학교폭력 사안처리 서식에 붙여넣을 한국어 문구를 작성한다.
+
+출력 규칙:
+- 최종 문구만 출력한다.
+- 설명, 제목, 따옴표, 마크다운, 번호표시는 쓰지 않는다.
+- "행정문체로 작성", "완곡하게 작성" 같은 지시문 자체를 문구에 쓰지 않는다.
+- 반드시 "사안조사 결과,"로 시작한다.
+- 전술은 사안조사 보고서 요약, 후술은 해당 Draft 판단 또는 안내 문구로 쓴다.
+- {char_limit}자 이내로 쓴다.
+- 문체: {strictness}
+- 대상 필드: {target_field}
+
+Draft별 필수 기준:
+{rules}
+
+사안조사 보고서 원문:
+{source_text}
+
+참고 생성문:
+{source_block_text or "없음"}
+""".strip()
+
+    def _draft_rules(self, document_type: DocumentType, flow_selection: FlowSelection) -> str:
+        if document_type == DocumentType.FORM_18_COMMITTEE_REVIEW_RESULT:
+            if flow_selection == FlowSelection.SELF_RESOLUTION:
+                return (
+                    "- 양측 간 사과, 신체적/정신적 피해 경미, 지속적이거나 반복적으로 보기 어려운 점, "
+                    "보복행위가 없었던 점을 모두 언급한다.\n"
+                    "- '학교폭력 예방 및 대책에 관한 법률 상 학교장 자체해결 요건에 해당하는 것으로 판단됨' "
+                    "취지의 문장을 포함한다."
+                )
+            return (
+                "- 치료 진단서, 재산상 피해, 지속성, 보복행위, 피해관련 학생의 심의위원회 요청 의사 중 "
+                "확인 가능한 요소를 근거로 쓴다.\n"
+                "- 학교폭력대책심의위원회 심의 요청이 필요한 사안으로 쓴다."
+            )
+
+        if document_type == DocumentType.FORM_19_COMMITTEE_CLOSURE_RESULT:
+            return (
+                f"- 선택 사유 '{CLOSURE_REASON_LABELS[flow_selection]}'를 명시한다.\n"
+                "- 학교폭력 예방 및 대책에 관한 법률 상 학교장 종결 처리에 해당한다는 취지로 쓴다."
+            )
+
+        if document_type == DocumentType.FORM_20_SELF_RESOLUTION_CONSENT:
+            return "- 보호자가 읽어도 논란이 적도록 중립적이고 완곡하게 쓴다. 학교장 자체해결 동의 절차와 연결한다."
+
+        if document_type == DocumentType.FORM_21_SELF_RESOLUTION_RESULT:
+            return "- 보호자가 읽어도 논란이 적도록 중립적이고 완곡하게 쓴다. 종결 처리 동의 절차와 연결한다."
+
+        if flow_selection == FlowSelection.SELF_RESOLUTION:
+            return "- 사안조사 보고서와 DRAFT18 흐름을 종합하여 학교장 자체해결 결과 보고서 문구로 쓴다."
+
+        return "- 사안조사 보고서와 DRAFT19 흐름을 종합하여 학교장 종결 결과 보고서 문구로 쓴다."
+
+    def _clean_response(self, text: str) -> str:
+        return " ".join(text.replace("\n", " ").split()).strip(" \"'")
+
+    def _limit_text(self, text: str, limit: int) -> str:
+        if len(text) <= limit:
+            return text
+
+        snippet = text[:limit].rstrip(" .,")
+        last_space = snippet.rfind(" ")
+        if last_space > int(limit * 0.7):
+            snippet = snippet[:last_space].rstrip(" .,")
+        return snippet

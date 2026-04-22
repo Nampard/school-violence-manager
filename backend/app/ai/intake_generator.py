@@ -1,7 +1,7 @@
 from dataclasses import asdict, dataclass
 import re
 
-from app.core.errors import IntakeSourceRequiredError
+from app.core.errors import AIGenerationFailedError, AIServiceUnavailableError, IntakeSourceRequiredError
 
 
 @dataclass(frozen=True)
@@ -113,3 +113,65 @@ class MockCaseIntakeGenerator:
             "보호자 안내와 초기 보호 조치 필요 여부를 검토함.",
             "추가 자료 확인 후 사안조사 보고서 작성 여부를 판단함.",
         ]
+
+
+class GeminiCaseIntakeGenerator(MockCaseIntakeGenerator):
+    def __init__(self, *, api_key: str, model: str) -> None:
+        self._api_key = api_key
+        self._model = model
+
+    def generate(self, *, statement: str, tone: str) -> Form10Draft:
+        normalized = self._normalize(statement)
+        if not normalized:
+            raise IntakeSourceRequiredError()
+        if not self._api_key:
+            raise AIServiceUnavailableError()
+
+        date = self._extract_date(normalized)
+        place = self._extract_labeled_value(normalized, ["장소", "발생 장소"]) or "입력 내용 참조"
+        summary = self._generate_summary(statement=normalized, tone=tone)
+        overview = self._build_overview(summary)
+        actions = self._build_actions(tone)
+        char_count = len("\n".join([overview, date, place, summary, *actions]))
+
+        return Form10Draft(
+            title="서식 10: 사안접수 보고용",
+            subtitle="사실 확인내용 기반 행정 문체 초안",
+            overview=overview,
+            timeline=Form10Timeline(date=date, place=place, summary=summary),
+            actions=actions,
+            char_count=char_count,
+        )
+
+    def _generate_summary(self, *, statement: str, tone: str) -> str:
+        try:
+            from google import genai
+        except ImportError as exc:
+            raise AIServiceUnavailableError() from exc
+
+        prompt = f"""
+학교폭력 사안접수 보고서 <서식10>의 '사실 확인내용' 초안을 작성한다.
+
+출력 규칙:
+- 최종 문구만 출력한다.
+- 제목, 따옴표, 마크다운, 번호표시는 쓰지 않는다.
+- "행정문체로 작성" 같은 지시문 자체를 문구에 쓰지 않는다.
+- 담당 교사가 최종 검토할 초안으로 쓴다.
+- 700자 이내로 쓴다.
+- 문체: {tone}
+
+사용자 입력:
+{statement}
+""".strip()
+
+        try:
+            client = genai.Client(api_key=self._api_key)
+            response = client.models.generate_content(model=self._model, contents=prompt)
+        except Exception as exc:
+            raise AIGenerationFailedError() from exc
+
+        text = " ".join(getattr(response, "text", "").replace("\n", " ").split()).strip(" \"'")
+        if not text:
+            raise AIGenerationFailedError()
+
+        return text[:700].rstrip(" .,")

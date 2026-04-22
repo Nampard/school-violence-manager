@@ -1,5 +1,7 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { MouseEvent } from 'react'
+import { getAIStatus } from './api/aiStatus'
+import type { AIStatus } from './api/aiStatus'
 import { GenerationControlPanel } from './components/stitch/GenerationControlPanel'
 import { HelpPopover } from './components/stitch/HelpPopover'
 import { ProfileDialog } from './components/stitch/ProfileDialog'
@@ -56,7 +58,10 @@ function loadGenerationSettings(): GenerationSettings {
     const parsedSettings = JSON.parse(storedSettings) as Partial<GenerationSettings>
 
     return {
-      engine: parsedSettings.engine === 'MOCK' ? parsedSettings.engine : defaultGenerationSettings.engine,
+      engine:
+        parsedSettings.engine === 'MOCK' || parsedSettings.engine === 'GEMINI'
+          ? parsedSettings.engine
+          : defaultGenerationSettings.engine,
       tone: parsedSettings.tone === 'FORM_SPECIFIC' ? parsedSettings.tone : defaultGenerationSettings.tone,
       strictness: parsedSettings.strictness === 'BALANCED' ? 'BALANCED' : defaultGenerationSettings.strictness,
       charLimitMode: parsedSettings.charLimitMode === 'WARN' ? 'WARN' : defaultGenerationSettings.charLimitMode,
@@ -73,6 +78,32 @@ function App() {
   const [profileDialogOpen, setProfileDialogOpen] = useState(false)
   const [generationSettings, setGenerationSettings] = useState<GenerationSettings>(() => loadGenerationSettings())
   const [generationPanelOpen, setGenerationPanelOpen] = useState(false)
+  const [aiStatus, setAIStatus] = useState<AIStatus | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+
+    getAIStatus()
+      .then((status) => {
+        if (cancelled) {
+          return
+        }
+        setAIStatus(status)
+        setGenerationSettings((currentSettings) => ({
+          ...currentSettings,
+          engine: status.provider === 'gemini' ? 'GEMINI' : 'MOCK',
+        }))
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setAIStatus(null)
+        }
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   const openHelp = (event: MouseEvent<HTMLButtonElement>) => {
     setHelpAnchor({ x: event.clientX, y: event.clientY })
@@ -105,6 +136,7 @@ function App() {
       <GenerationControlPanel
         open={generationPanelOpen}
         settings={generationSettings}
+        aiStatus={aiStatus}
         onClose={() => setGenerationPanelOpen(false)}
         onChange={changeGenerationSettings}
       />

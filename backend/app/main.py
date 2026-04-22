@@ -5,6 +5,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
+from app.api.v1.ai import router as ai_router
 from app.api.v1.documents import router as documents_router
 from app.api.v1.intake import router as intake_router
 from app.core.errors import DraftGenerationError
@@ -68,3 +69,4 @@ def health() -> dict[str, str]:
 
 app.include_router(documents_router, prefix="/api/v1")
 app.include_router(intake_router, prefix="/api/v1")
+app.include_router(ai_router, prefix="/api/v1")

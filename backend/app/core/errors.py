@@ -31,3 +31,21 @@ class DraftDisabledByFlowError(DraftGenerationError):
             message="선택된 사안처리 흐름에서는 해당 Draft를 생성할 수 없습니다.",
             status_code=422,
         )
+
+
+class AIServiceUnavailableError(DraftGenerationError):
+    def __init__(self) -> None:
+        super().__init__(
+            code="AI_SERVICE_UNAVAILABLE",
+            message="AI 생성 서비스를 사용할 수 없습니다. Gemini API 키와 백엔드 실행 상태를 확인해 주세요.",
+            status_code=503,
+        )
+
+
+class AIGenerationFailedError(DraftGenerationError):
+    def __init__(self) -> None:
+        super().__init__(
+            code="AI_GENERATION_FAILED",
+            message="AI 문구 생성에 실패했습니다. 잠시 후 다시 시도해 주세요.",
+            status_code=500,
+        )
