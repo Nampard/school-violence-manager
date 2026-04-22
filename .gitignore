@@ -35,6 +35,7 @@ frontend/vite.config.d.ts.map
 *.hwp
 *.hwpx
 reference/
+stitch(new)/
 ignore/
 frontend/frontend(백업)/
 frontend/frontend(백업)/
