@@ -6,6 +6,86 @@
 
 현재 MVP는 HWP 파일을 직접 자동 작성하기보다, 학교 공문/서식 프로그램에 바로 붙여넣을 수 있는 복사 가능한 문구 블록 생성을 우선한다.
 
+## 교사용 빠른 시작
+
+### 1. Gemini API 키 발급
+
+1. [Google AI Studio API Keys](https://ai.google.dev/gemini-api/docs/api-key) 페이지에 접속한다.
+2. Google 계정으로 로그인한다.
+3. `Create API key` 또는 `API 키 만들기`를 눌러 키를 발급한다.
+4. 발급된 키를 복사한다.
+
+API 키는 비밀번호처럼 다뤄야 한다. 카카오톡, 메신저, 공개 GitHub 저장소, 화면 캡처에 노출하지 않는다.
+
+현재 `0.1.0` 버전은 `MockGenerator`로도 실행할 수 있다. 실제 Gemini 연결 기능이 붙은 버전부터 아래의 `backend/.env` 키 설정을 사용한다.
+
+### 2. API 키 적용
+
+수정할 파일은 백엔드 설정 파일 하나다.
+
+```text
+backend/.env
+```
+
+`backend/.env` 파일이 없으면 새로 만들고, 아래처럼 입력한다.
+
+```env
+GEMINI_API_KEY=여기에_발급받은_API키를_붙여넣기
+```
+
+주의할 점:
+
+- 프론트엔드 파일은 수정하지 않는다.
+- 브라우저 화면에 API 키를 입력하지 않는다.
+- `backend/.env`는 GitHub에 올리지 않는다.
+- 키를 바꾼 뒤에는 백엔드 서버를 다시 실행한다.
+
+### 3. 프로그램 실행
+
+터미널을 2개 연다.
+
+첫 번째 터미널에서는 백엔드를 실행한다.
+
+```bash
+cd backend
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+```
+
+두 번째 터미널에서는 프론트엔드를 실행한다.
+
+```bash
+cd frontend
+npm install
+npm run dev -- --host 127.0.0.1
+```
+
+브라우저에서 아래 주소를 연다.
+
+```text
+http://127.0.0.1:5173/
+```
+
+### 입문자용 용어
+
+처음 보면 낯선 말들만 먼저 보일 수 있어서, 실행할 때 자주 나오는 것만 아주 짧게 정리해둔다.
+
+- `.venv`: 이 프로젝트만 쓰는 파이썬 작업 공간이다.
+- `backend/.env`: 비밀 설정을 적어두는 파일이다. Gemini API 키를 넣는 곳이다.
+- `8000`: 백엔드가 듣는 번호다.
+- `5173`: 프론트 화면이 열리는 번호다. Vite가 보통 이렇게 시작한다.
+- `터미널`: 명령어를 치는 검은 창이다.
+- `브라우저`: 화면을 여는 곳이다. Safari, Chrome 같은 프로그램이다.
+- `MockGenerator`: 아직 실제 Gemini 대신 쓰는 연습용 문구 생성기다.
+
+한 줄로 보면 이렇게 생각하면 된다.
+
+```text
+터미널에서 백엔드(8000)와 프론트(5173)를 따로 켜고, 브라우저는 5173을 연다.
+```
+
 ## 현재 책임 구조
 
 - Codex: 플랜, 계약, 백엔드, 프론트엔드 구현 및 검증

@@ -11,6 +11,12 @@ __pycache__/
 *.py[cod]
 .venv/
 
+# Local secrets
+.env
+*.env
+backend/.env
+frontend/.env
+
 # Generated TypeScript output from accidental src emits
 frontend/src/**/*.d.ts
 frontend/src/**/*.d.ts.map
