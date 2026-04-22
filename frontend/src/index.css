@@ -202,6 +202,16 @@
   animation: fade-in 0.22s ease-out both;
 }
 
+@keyframes spin-counterclockwise {
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+.animate-spin-counterclockwise {
+  animation: spin-counterclockwise 1s linear infinite;
+}
+
 ::-webkit-scrollbar {
   width: 12px;
   height: 12px;

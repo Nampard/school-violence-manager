@@ -107,6 +107,16 @@ CLOSURE_REASON_LABELS: dict[FlowSelection, str] = {
 }
 
 
+CLOSURE_LEGAL_BASIS_LABELS: dict[FlowSelection, str] = {
+    FlowSelection.CLOSURE_FALSE_REPORT: "학교폭력예방 및 대책에 관한 법률 제2조 제1항",
+    FlowSelection.CLOSURE_SUSPECTED_CASE: "학교폭력예방 및 대책에 관한 법률 제2조 제1항",
+    FlowSelection.CLOSURE_ADULT_OR_UNIDENTIFIABLE: "학교폭력예방 및 대책에 관한 법률 제2조 제3항",
+}
+
+
+SELF_RESOLUTION_LEGAL_BASIS = "학교폭력 예방 및 대책에 관한 법률 제13조의2 제1항"
+
+
 def is_enabled(document_type: DocumentType, flow_selection: FlowSelection) -> bool:
     return document_type in ENABLED_DOCUMENTS_BY_FLOW[flow_selection]
 

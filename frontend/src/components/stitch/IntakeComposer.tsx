@@ -58,7 +58,7 @@ export function IntakeComposer({ value, tone, loading, onChange, onToneChange, o
             : 'bg-surface-mid text-muted'
         }`}
       >
-        <span className={`material-symbols-outlined text-[22px] ${loading ? 'animate-spin' : ''}`}>{loading ? 'sync' : 'auto_awesome'}</span>
+        <span className={`material-symbols-outlined text-[22px] ${loading ? 'animate-spin-counterclockwise' : ''}`}>{loading ? 'replay' : 'auto_awesome'}</span>
         {loading ? '초안 생성 중' : '초안 생성'}
       </button>
     </section>

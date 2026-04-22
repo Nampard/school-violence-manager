@@ -13,21 +13,15 @@ export function Form10Document({ regenerating, document = form10Document }: Form
   const copyText = useMemo(
     () =>
       [
-        '1. 사안 개요',
-        document.overview,
-        '',
-        '2. 발생 경위',
+        '발생 경위',
         `일시: ${document.timeline.date}`,
         `장소: ${document.timeline.place}`,
         `경위: ${document.timeline.summary}`,
-        '',
-        '3. 조치 사항',
-        ...document.actions.map((action) => `- ${action}`),
       ].join('\n'),
     [document],
   )
-  const charLimit = document.char_limit ?? 4000
-  const charCount = document.char_count ?? copyText.length
+  const charLimit = document.char_limit ?? 1000
+  const charCount = copyText.length
   const progress = `${Math.max(6, Math.min(100, Math.round((charCount / charLimit) * 100)))}%`
 
   const copy = () => {
@@ -51,7 +45,7 @@ export function Form10Document({ regenerating, document = form10Document }: Form
       </div>
 
       <div className={`rounded-lg p-0.5 shadow-[0_18px_46px_rgba(53,79,65,0.15)] ${regenerating ? 'bg-surface-mid' : 'ai-draft-surface'}`}>
-        <article className="flex h-[720px] flex-col overflow-hidden rounded-lg bg-white">
+        <article className="flex min-h-[560px] flex-col overflow-hidden rounded-lg bg-white">
           <header className="flex items-start justify-between gap-6 px-8 py-8 shadow-[0_1px_0_rgba(11,28,48,0.06)]">
             <div>
               <h3 className="text-xl font-black leading-tight text-ink">{document.title}</h3>
@@ -64,24 +58,12 @@ export function Form10Document({ regenerating, document = form10Document }: Form
           </header>
 
           <div className="flex-1 space-y-8 overflow-y-auto px-10 py-10">
-            <ReportSection title="1. 사안 개요">
-              <p>{document.overview}</p>
-            </ReportSection>
-
-            <ReportSection title="2. 발생 경위 (AI 정리)">
+            <ReportSection title="발생 경위">
               <div className="space-y-5 rounded-lg bg-surface-low/55 p-7 shadow-[inset_0_0_0_1px_rgba(197,197,212,0.22)]">
                 <FactRow label="일시">{document.timeline.date}</FactRow>
                 <FactRow label="장소">{document.timeline.place}</FactRow>
                 <FactRow label="경위">{document.timeline.summary}</FactRow>
               </div>
-            </ReportSection>
-
-            <ReportSection title="3. 조치 사항">
-              <ul className="list-inside list-disc space-y-2">
-                {document.actions.map((action) => (
-                  <li key={action}>{action}</li>
-                ))}
-              </ul>
             </ReportSection>
           </div>
 

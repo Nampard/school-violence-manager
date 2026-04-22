@@ -28,6 +28,7 @@ class AppSettings:
     ai_provider: str
     gemini_api_key: str
     gemini_model: str
+    gemini_fallback_model: str
 
 
 def get_settings() -> AppSettings:
@@ -44,4 +45,5 @@ def get_settings() -> AppSettings:
         ai_provider=ai_provider,
         gemini_api_key=gemini_api_key,
         gemini_model=os.getenv("GEMINI_MODEL", "gemini-2.5-flash").strip() or "gemini-2.5-flash",
+        gemini_fallback_model=os.getenv("GEMINI_FALLBACK_MODEL", "gemini-flash-lite-latest").strip() or "gemini-flash-lite-latest",
     )

@@ -2,6 +2,7 @@ from dataclasses import asdict, dataclass
 import re
 
 from app.core.errors import AIGenerationFailedError, AIServiceUnavailableError, IntakeSourceRequiredError
+from app.ai.style import enforce_administrative_prose
 
 
 @dataclass(frozen=True)
@@ -22,7 +23,7 @@ class Form10Draft:
     timeline: Form10Timeline
     actions: list[str]
     char_count: int
-    char_limit: int = 4000
+    char_limit: int = 1000
 
     def to_dict(self) -> dict[str, object]:
         return {
@@ -47,7 +48,7 @@ class MockCaseIntakeGenerator:
         summary = self._build_summary(normalized, tone)
         overview = self._build_overview(summary)
         actions = self._build_actions(tone)
-        char_count = len("\n".join([overview, date, place, summary, *actions]))
+        char_count = self._count_occurrence_text(date, place, summary)
 
         return Form10Draft(
             title="서식 10: 사안접수 보고용",
@@ -114,11 +115,15 @@ class MockCaseIntakeGenerator:
             "추가 자료 확인 후 사안조사 보고서 작성 여부를 판단함.",
         ]
 
+    def _count_occurrence_text(self, date: str, place: str, summary: str) -> int:
+        return len("\n".join([f"일시: {date}", f"장소: {place}", f"경위: {summary}"]))
+
 
 class GeminiCaseIntakeGenerator(MockCaseIntakeGenerator):
-    def __init__(self, *, api_key: str, model: str) -> None:
+    def __init__(self, *, api_key: str, model: str, fallback_model: str | None = None) -> None:
         self._api_key = api_key
         self._model = model
+        self._fallback_model = fallback_model
 
     def generate(self, *, statement: str, tone: str) -> Form10Draft:
         normalized = self._normalize(statement)
@@ -132,7 +137,7 @@ class GeminiCaseIntakeGenerator(MockCaseIntakeGenerator):
         summary = self._generate_summary(statement=normalized, tone=tone)
         overview = self._build_overview(summary)
         actions = self._build_actions(tone)
-        char_count = len("\n".join([overview, date, place, summary, *actions]))
+        char_count = self._count_occurrence_text(date, place, summary)
 
         return Form10Draft(
             title="서식 10: 사안접수 보고용",
@@ -157,6 +162,9 @@ class GeminiCaseIntakeGenerator(MockCaseIntakeGenerator):
 - 제목, 따옴표, 마크다운, 번호표시는 쓰지 않는다.
 - "행정문체로 작성" 같은 지시문 자체를 문구에 쓰지 않는다.
 - 담당 교사가 최종 검토할 초안으로 쓴다.
+- 존대어를 쓰지 않는다.
+- "~합니다", "~습니다", "~드립니다", "~바랍니다", "협조 바랍니다", "주시기 바랍니다"를 쓰지 않는다.
+- 행정문체를 필수로 사용하고, 문장 종결은 "~함", "~됨", "~확인됨", "~판단됨", "~검토됨"을 우선한다.
 - 700자 이내로 쓴다.
 - 문체: {tone}
 
@@ -164,14 +172,22 @@ class GeminiCaseIntakeGenerator(MockCaseIntakeGenerator):
 {statement}
 """.strip()
 
-        try:
-            client = genai.Client(api_key=self._api_key)
-            response = client.models.generate_content(model=self._model, contents=prompt)
-        except Exception as exc:
-            raise AIGenerationFailedError() from exc
+        client = genai.Client(api_key=self._api_key)
+        last_error: Exception | None = None
 
-        text = " ".join(getattr(response, "text", "").replace("\n", " ").split()).strip(" \"'")
-        if not text:
-            raise AIGenerationFailedError()
+        for model in self._model_candidates():
+            try:
+                response = client.models.generate_content(model=model, contents=prompt)
+                text = enforce_administrative_prose(getattr(response, "text", ""))
+                if text:
+                    return text[:700].rstrip(" .,")
+            except Exception as exc:
+                last_error = exc
 
-        return text[:700].rstrip(" .,")
+        raise AIGenerationFailedError() from last_error
+
+    def _model_candidates(self) -> list[str]:
+        models = [self._model]
+        if self._fallback_model and self._fallback_model not in models:
+            models.append(self._fallback_model)
+        return models

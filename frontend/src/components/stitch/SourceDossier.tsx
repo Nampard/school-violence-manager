@@ -42,7 +42,7 @@ export function SourceDossier({ value, onChange, dirty, onSync, locked = false }
             disabled={locked}
             className="flex items-center gap-2 text-[14px] font-black text-primary hover:text-primary-deep disabled:cursor-not-allowed disabled:text-muted"
           >
-            <span className={`material-symbols-outlined text-[17px] ${dirty ? 'animate-spin' : ''}`}>sync</span>
+            <span className={`material-symbols-outlined text-[17px] ${dirty ? 'animate-spin-counterclockwise' : ''}`}>{dirty ? 'replay' : 'sync'}</span>
             Sync Source
           </button>
         </div>

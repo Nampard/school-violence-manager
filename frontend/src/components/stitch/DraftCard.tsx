@@ -100,21 +100,31 @@ export function DraftCardView({
             {draft.titleNote && <span className="ml-1 inline-block text-[0.8em]">{draft.titleNote}</span>}
           </h4>
         </div>
-        <span className={`rounded-md px-3 py-2 text-[11px] font-black ${statusToneClass[status.tone]}`}>{status.label}</span>
+        <span className={`inline-flex items-center gap-1.5 rounded-md px-3 py-2 text-[11px] font-black ${statusToneClass[status.tone]}`}>
+          {generating && <span className="material-symbols-outlined text-[15px] animate-spin-counterclockwise">replay</span>}
+          {status.label}
+        </span>
       </header>
 
       <div className="ai-draft-surface mb-4 flex-1 rounded-lg p-4">
-        <p
-          className={`text-sm leading-7 ${
-            disabled
-              ? 'font-black text-danger'
-              : draft.italic && !isGenerated
-                ? 'italic text-muted'
-                : 'text-on-surface-variant'
-          }`}
-        >
-          {displayBody}
-        </p>
+        {generating ? (
+          <div className="flex min-h-[96px] items-center justify-center gap-3 text-sm font-black text-primary">
+            <span className="material-symbols-outlined text-[24px] animate-spin-counterclockwise">replay</span>
+            사안 내용 생성 중
+          </div>
+        ) : (
+          <p
+            className={`text-sm leading-7 ${
+              disabled
+                ? 'font-black text-danger'
+                : draft.italic && !isGenerated
+                  ? 'italic text-muted'
+                  : 'text-on-surface-variant'
+            }`}
+          >
+            {displayBody}
+          </p>
+        )}
       </div>
 
       {draft.options && (

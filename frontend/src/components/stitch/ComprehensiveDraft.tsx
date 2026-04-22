@@ -71,13 +71,20 @@ export function ComprehensiveDraft({ body, disabled = false, generating = false,
           <h4 className="mt-3 text-lg font-black text-ink">{comprehensiveDraft.title}</h4>
         </div>
         <div className={`flex items-center gap-2 rounded-md px-3 py-2 text-[11px] font-black ${statusToneClass[status.tone]}`}>
-          <span className="material-symbols-outlined text-[17px]">auto_awesome</span>
+          <span className={`material-symbols-outlined text-[17px] ${generating ? 'animate-spin-counterclockwise' : ''}`}>{generating ? 'replay' : 'auto_awesome'}</span>
           {status.label}
         </div>
       </header>
 
       <div className="rounded-lg bg-gradient-to-br from-surface-low via-white to-sage-soft/35 p-5 shadow-[inset_0_0_0_1px_rgba(45,64,159,0.12)]">
-        <p className={`text-sm leading-7 ${disabled ? 'font-black text-danger' : 'text-on-surface-variant'}`}>{displayBody}</p>
+        {generating ? (
+          <div className="flex min-h-[88px] items-center justify-center gap-3 text-sm font-black text-primary">
+            <span className="material-symbols-outlined text-[24px] animate-spin-counterclockwise">replay</span>
+            결과 보고서 생성 중
+          </div>
+        ) : (
+          <p className={`text-sm leading-7 ${disabled ? 'font-black text-danger' : 'text-on-surface-variant'}`}>{displayBody}</p>
+        )}
       </div>
 
       <footer className="mt-6 flex flex-col gap-6 xl:flex-row xl:items-center xl:justify-between">
