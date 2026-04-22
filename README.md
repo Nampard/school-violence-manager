@@ -1,8 +1,8 @@
-# 학교폭력 관리 프로그램
+# 학교폭력 사안조사 내용 재가공 프로그램
 
 > 프로젝트 버전: 0.1.0
 
-특성화고 학교폭력 담당 교사의 사안 접수, 조사 기록, 서식별 행정 문구 생성을 돕는 업무 도구입니다.
+특성화고 학교폭력 담당 교사의 사안 접수, 조사 기록, 서식별 행정 문구 생성을 돕는 업무 도구입니다. 이 프로그램은 로컬 환경에서 실행되며 API를 호출해 문구를 생성하고, 별도 중앙 저장소에 데이터를 누적 저장하지 않는 방식을 기본으로 하므로 운영 시 정보 노출 위험을 낮추는 데 초점을 둡니다.
 
 현재 MVP는 HWP 파일을 직접 자동 작성하기보다, 학교 공문/서식 프로그램에 바로 붙여넣을 수 있는 복사 가능한 문구 블록 생성을 우선합니다.
 
@@ -92,6 +92,7 @@ backend/.env
 GEMINI_API_KEY=여기에_발급받은_API키를_붙여넣기
 AI_PROVIDER=auto
 GEMINI_MODEL=gemini-2.5-flash
+GEMINI_FALLBACK_MODEL=gemini-flash-lite-latest
 ```
 
 예시 파일을 그대로 활용하려면 `backend/.env.example` 파일 이름을 `backend/.env`로 바꾸고, `replace_with_your_gemini_api_key` 부분을 실제 API 키로 바꾸시면 됩니다.
@@ -104,6 +105,7 @@ GEMINI_MODEL=gemini-2.5-flash
 - `backend/.env`는 GitHub에 올리지 않습니다.
 - 키를 바꾼 뒤에는 백엔드 서버를 다시 실행합니다.
 - 백엔드가 Gemini를 쓰면 화면 오른쪽 위 제어판에 `Gemini 사용 중`으로 표시됩니다.
+- `GEMINI_MODEL`이 일시적으로 바쁘면 `GEMINI_FALLBACK_MODEL`로 한 번 더 시도합니다.
 
 ### 5. 프로그램 실행
 
