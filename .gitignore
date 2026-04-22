@@ -32,6 +32,9 @@ frontend/vite.config.d.ts.map
 # Local archives and backups
 *.zip
 *.pdf
+*.hwp
+*.hwpx
+reference/
 ignore/
 frontend/frontend(백업)/
 frontend/frontend(백업)/
