@@ -21,22 +21,33 @@ API 키는 비밀번호처럼 다뤄야 한다. 카카오톡, 메신저, 공개 
 
 ### 2. API 키 적용
 
-수정할 파일은 백엔드 설정 파일 하나다.
+참고할 예시 파일은 아래 파일이다.
+
+```text
+backend/.env.example
+```
+
+이 파일은 GitHub에 올라가도 되는 예시 파일이며, 프론트엔드와 백엔드는 이 파일을 직접 읽지 않는다.
+
+실제로 사용할 파일은 아래 이름이어야 한다.
 
 ```text
 backend/.env
 ```
 
-`backend/.env` 파일이 없으면 새로 만들고, 아래처럼 입력한다.
+처음 설정할 때는 `backend/.env.example` 파일을 참고해서 `backend/.env` 파일을 만든다. 그다음 아래처럼 실제 Gemini API 키를 넣는다.
 
 ```env
 GEMINI_API_KEY=여기에_발급받은_API키를_붙여넣기
 ```
 
+예시 파일을 그대로 활용하려면 `backend/.env.example` 파일 이름을 `backend/.env`로 바꾸고, `replace_with_your_gemini_api_key` 부분을 실제 API 키로 바꾸면 된다.
+
 주의할 점:
 
 - 프론트엔드 파일은 수정하지 않는다.
 - 브라우저 화면에 API 키를 입력하지 않는다.
+- `backend/.env.example`은 예시 파일이라 GitHub에 올라가도 된다.
 - `backend/.env`는 GitHub에 올리지 않는다.
 - 키를 바꾼 뒤에는 백엔드 서버를 다시 실행한다.
 
